@@ -72,6 +72,10 @@ using(var scope = app.Services.CreateScope())
         await userManager.CreateAsync(user, password);
         await userManager.AddToRoleAsync(user, "Librarian");
     }
+
+    var services = scope.ServiceProvider;
+
+    SeedData.Initialize(services);
 }
 
 app.Run();

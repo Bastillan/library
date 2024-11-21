@@ -14,7 +14,6 @@ namespace MvcLibrary.Controllers
             _logger = logger;
         }
 
-        [Authorize(Roles = "Librarian")]
         public IActionResult Index()
         {
             return View();

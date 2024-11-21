@@ -20,7 +20,8 @@ namespace MvcLibrary.Models
                         Author = "F. Scott Fitzgerald",
                         Genre = "Classic",
                         Publisher = "Scribner",
-                        PublicationDate = DateTime.Parse("1925-04-10")
+                        PublicationDate = DateTime.Parse("1925-04-10"),
+                        Status="Available"
                     },
                     new Book
                     {
@@ -28,7 +29,8 @@ namespace MvcLibrary.Models
                         Author = "Harper Lee",
                         Genre = "Fiction",
                         Publisher = "J.B. Lippincott & Co.",
-                        PublicationDate = DateTime.Parse("1960-07-11")
+                        PublicationDate = DateTime.Parse("1960-07-11"),
+                        Status = "Available"
                     },
                     new Book
                     {
@@ -36,7 +38,8 @@ namespace MvcLibrary.Models
                         Author = "George Orwell",
                         Genre = "Dystopian",
                         Publisher = "Secker & Warburg",
-                        PublicationDate = DateTime.Parse("1949-06-08")
+                        PublicationDate = DateTime.Parse("1949-06-08"),
+                        Status = "Available"
                     },
                     new Book
                     {
@@ -44,7 +47,8 @@ namespace MvcLibrary.Models
                         Author = "Jane Austen",
                         Genre = "Romance",
                         Publisher = "T. Egerton",
-                        PublicationDate = DateTime.Parse("1813-01-28")
+                        PublicationDate = DateTime.Parse("1813-01-28"),
+                        Status = "Available"
                     },
                     new Book
                     {
@@ -52,7 +56,8 @@ namespace MvcLibrary.Models
                         Author = "J.D. Salinger",
                         Genre = "Fiction",
                         Publisher = "Little, Brown and Company",
-                        PublicationDate = DateTime.Parse("1951-07-16")
+                        PublicationDate = DateTime.Parse("1951-07-16"),
+                        Status = "Available"
                     },
                     new Book
                     {
@@ -60,7 +65,8 @@ namespace MvcLibrary.Models
                         Author = "J.R.R. Tolkien",
                         Genre = "Fantasy",
                         Publisher = "George Allen & Unwin",
-                        PublicationDate = DateTime.Parse("1937-09-21")
+                        PublicationDate = DateTime.Parse("1937-09-21"),
+                        Status = "Available"
                     },
                     new Book
                     {
@@ -68,7 +74,8 @@ namespace MvcLibrary.Models
                         Author = "Herman Melville",
                         Genre = "Adventure",
                         Publisher = "Harper & Brothers",
-                        PublicationDate = DateTime.Parse("1851-10-18")
+                        PublicationDate = DateTime.Parse("1851-10-18"),
+                        Status = "Available"
                     },
                     new Book
                     {
@@ -76,7 +83,8 @@ namespace MvcLibrary.Models
                         Author = "Leo Tolstoy",
                         Genre = "Historical",
                         Publisher = "The Russian Messenger",
-                        PublicationDate = DateTime.Parse("1869-01-01")
+                        PublicationDate = DateTime.Parse("1869-01-01"),
+                        Status = "Available"
                     },
                     new Book
                     {
@@ -84,7 +92,8 @@ namespace MvcLibrary.Models
                         Author = "Paulo Coelho",
                         Genre = "Philosophical",
                         Publisher = "HarperOne",
-                        PublicationDate = DateTime.Parse("1988-01-01")
+                        PublicationDate = DateTime.Parse("1988-01-01"),
+                        Status = "Available"
                     },
                     new Book
                     {
@@ -92,7 +101,8 @@ namespace MvcLibrary.Models
                         Author = "Aldous Huxley",
                         Genre = "Science Fiction",
                         Publisher = "Chatto & Windus",
-                        PublicationDate = DateTime.Parse("1932-08-31")
+                        PublicationDate = DateTime.Parse("1932-08-31"),
+                        Status = "Available"
                     }
                 );
                 context.SaveChanges();

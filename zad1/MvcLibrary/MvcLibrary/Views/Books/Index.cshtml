@@ -35,6 +35,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Books![0].PublicationDate)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books![0].Status)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -56,6 +59,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PublicationDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a>

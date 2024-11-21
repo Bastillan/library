@@ -101,7 +101,7 @@ namespace MvcLibrary.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> Create([Bind("Id,Title,Author,Genre,Publisher,PublicationDate")] Book book)
+        public async Task<IActionResult> Create([Bind("Id,Title,Author,Genre,Publisher,PublicationDate,Status")] Book book)
         {
             if (ModelState.IsValid)
             {

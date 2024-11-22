@@ -47,6 +47,11 @@ namespace MvcLibrary.Controllers
 
             foreach(var reservation in _context.Reservation)
             {
+                if (!StillReserved(reservation))
+                {
+                    continue;
+                }
+                
                 var book = await _context.Book.FindAsync(reservation.BookId);
                 var new_reservation = new ReservationBookViewModel
                 {
@@ -91,6 +96,11 @@ namespace MvcLibrary.Controllers
 
             foreach (var reservation in _context.Reservation)
             {
+                if (!StillReserved(reservation))
+                {
+                    continue;
+                }
+
                 var book = await _context.Book.FindAsync(reservation.BookId);
                 var new_reservation = new ReservationBookViewModel
                 {
@@ -228,6 +238,19 @@ namespace MvcLibrary.Controllers
         private bool ReservationExists(int id)
         {
             return _context.Reservation.Any(e => e.Id == id);
+        }
+
+        private bool StillReserved(Reservation reservation)
+        {
+            if (DateTime.Now > reservation.ValidDate)
+            {
+                var book = _context.Book.FirstOrDefault(b => b.Id == reservation.BookId);
+                book!.Status = "Available";
+                _context.Book.Update(book);
+                _context.Reservation.Remove(reservation);
+                return false;
+            }
+            return true;
         }
     }
 }

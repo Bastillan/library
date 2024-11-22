@@ -65,7 +65,7 @@
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Reserve</a>
+                    <a asp-area="" asp-controller="Reservations" asp-action="Reserve" asp-route-id="@item.Id">Reserve</a>
                 </td>
             </tr>
         }

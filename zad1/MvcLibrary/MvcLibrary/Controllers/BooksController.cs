@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using MvcLibrary.Data;
 using MvcLibrary.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace MvcLibrary.Controllers
 {
@@ -39,17 +40,22 @@ namespace MvcLibrary.Controllers
 
             if (!string.IsNullOrEmpty(title))
             {
-                books = books.Where(s => s.Title!.ToUpper().Contains(title.ToUpper()));
+                books = books.Where(b => b.Title!.ToUpper().Contains(title.ToUpper()));
             }
 
             if (!string.IsNullOrEmpty(author))
             {
-                books = books.Where(s => s.Author!.ToUpper().Contains(author.ToUpper()));
+                books = books.Where(b => b.Author!.ToUpper().Contains(author.ToUpper()));
             }
 
             if (!string.IsNullOrEmpty(bookGenre))
             {
-                books = books.Where(x => x.Genre == bookGenre);
+                books = books.Where(b => b.Genre == bookGenre);
+            }
+
+            if (!User.IsInRole("Librarian"))
+            {
+                books = books.Where(s => s.Status != "Permanently unavailable");
             }
 
             var bookGenreVM = new BookGenreViewModel
@@ -83,6 +89,11 @@ namespace MvcLibrary.Controllers
             if (book == null)
             {
                 return NotFound();
+            }
+
+            if (User.IsInRole("Librarian"))
+            {
+                return View("DetailsLibrarian", book);
             }
 
             return View(book);

@@ -1,16 +1,15 @@
-﻿@model IEnumerable<MvcLibrary.Models.ReservationBookViewModel>
+﻿@model IEnumerable<MvcLibrary.Models.CheckoutBookViewModel>
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Reservations</h1>
+<h1>Checkouts</h1>
 
-<form asp-controller="Reservations" asp-action="IndexLibrarian" method="get">
+<form asp-controler="Checkouts" asp-action="IndexLibrarian" method="get">
     <p>
         <label>Title: <input type="text" name="Title" /></label>
         <label>Author: <input type="text" name="Author" /></label>
-        <label>UserName: <input type="text" name="UserName" /></label>
         <input type="submit" value="Filter" />
     </p>
 </form>
@@ -31,10 +30,10 @@
                 @Html.DisplayNameFor(model => model.Author)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReservationDate)
+                @Html.DisplayNameFor(model => model.StartTime)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ValidDate)
+                @Html.DisplayNameFor(model => model.EndTime)
             </th>
             <th></th>
         </tr>
@@ -56,15 +55,13 @@
                     @Html.DisplayFor(modelItem => item.Author)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ReservationDate)
+                    @Html.DisplayFor(modelItem => item.StartTime)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ValidDate)
+                    @Html.DisplayFor(modelItem => item.EndTime)
                 </td>
                 <td>
-                    <a asp-area="" asp-controller="Checkouts" asp-action="Checkout" asp-route-id="@item.Id">Check out</a> |
-                    <a asp-area="" asp-controller="Books" asp-action="Details" asp-route-id="@item.BookId">Details</a> |
-                    <a asp-action="Unreserve" asp-route-id="@item.Id">Unreserve</a>
+                    <a asp-area="" asp-controler="Books" asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 </td>
             </tr>
         }

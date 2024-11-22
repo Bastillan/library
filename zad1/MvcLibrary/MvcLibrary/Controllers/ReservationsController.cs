@@ -114,6 +114,7 @@ namespace MvcLibrary.Controllers
             {
                 reservations = reservations.Where(b => b.Author!.ToUpper().Contains(author.ToUpper()));
             }
+            reservations = reservations.Where(b => b.UserName == User.Identity!.Name);
 
             return View(reservations);
         }
@@ -193,7 +194,7 @@ namespace MvcLibrary.Controllers
         }
 
         // POST: Reservations/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Unreserve")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Reader, Librarian")]
         public async Task<IActionResult> UnreserveConfirmed(int id)

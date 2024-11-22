@@ -183,7 +183,7 @@ namespace MvcLibrary.Controllers
             return View(book);
         }
 
-        // GET: Reservations/Delete/5
+        // GET: Reservations/Unreserve/5
         //[Authorize(Roles = "Librarian")]
         [Authorize(Roles = "Reader, Librarian")]
         public async Task<IActionResult> Unreserve(int? id)
@@ -203,7 +203,7 @@ namespace MvcLibrary.Controllers
             return View(reservation);
         }
 
-        // POST: Reservations/Delete/5
+        // POST: Reservations/Unreserve/5
         [HttpPost, ActionName("Unreserve")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Reader, Librarian")]

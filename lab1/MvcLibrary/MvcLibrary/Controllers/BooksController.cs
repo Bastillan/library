@@ -162,7 +162,7 @@ namespace MvcLibrary.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Genre,Publisher,PublicationDate")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Genre,Publisher,PublicationDate,Status")] Book book)
         {
             if (id != book.Id)
             {

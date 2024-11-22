@@ -12,9 +12,9 @@
 
 <form asp-controller="Books" asp-action="Index" method="get">
     <p>
-        <select asp-for="BookGenre" asp-items="Model.Genres">
+        <label>Genre: <select asp-for="BookGenre" asp-items="Model.Genres">
             <option value="">All</option>
-        </select>
+        </select></label>
         <label>Title: <input type="text" asp-for="Title" /></label>
         <label>Author: <input type="text" asp-for="Author" /></label>
         <input type="submit" value="Filter" />

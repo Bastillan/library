@@ -121,7 +121,7 @@ namespace MvcLibrary.Controllers
         }
 
 
-        // GET: Checkouts/Create
+        // GET: Checkouts/Checkout
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> Checkout(int? id)
         {
@@ -139,7 +139,7 @@ namespace MvcLibrary.Controllers
             return View(reservation);
         }
 
-        // POST: Checkouts/Create
+        // POST: Checkouts/Checkout
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -165,7 +165,7 @@ namespace MvcLibrary.Controllers
             return RedirectToAction(nameof(IndexLibrarian));
         }
 
-        // GET: Checkouts/Delete/5
+        // GET: Checkouts/EndCheckout/5
         [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> EndCheckout(int? id)
         {
@@ -184,7 +184,7 @@ namespace MvcLibrary.Controllers
             return View(checkout);
         }
 
-        // POST: Checkouts/Delete/5
+        // POST: Checkouts/EndCheckout/5
         [HttpPost, ActionName("EndCheckout")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Librarian")]

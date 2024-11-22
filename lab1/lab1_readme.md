@@ -14,18 +14,21 @@
 
 ## Dodatkowe funkcjonalności
 - Użytkownik może wyszukiwać książki (a także swoje rezerwacje i wypożyczenia), wpisując tytuł, autora lub wybierając gatunek książki
-- Bibliotekarz może dodawać nowe książki do biblioteki
-- Użytkownik i bibliotekarz mogą wyświetlić historię wypożyczeń
+- Bibliotekarz analogicznie do użytkownika może wyszukiwać książki, dodatkowo może filtrować rezerwacje i wyporzyczenia po nazwie użytkownika
+- Bibliotekarz może dodawać nowe książki do biblioteki lub edytować istniejące egzemplarze
+- Użytkownik i bibliotekarz mogą wyświetlić historię wypożyczeń (użytkownik wszystkie swoje historyczne i obecne wypożyczenia, bibliotekarz historię wszystkich wypożyczeń)
 - Użytkownik anonimowy (bez tworzenia konta) może przeglądać katalog książek, ale nie może ich rezerwować, ani wypożyczać
-- Zamiast pola ceny jest pole gatunku
-- Wyświetlany status wypożyczenia danej książki
+- W modelu książki zamiast pola ceny jest pole gatunku
+- Wyświetlany jest status wypożyczenia danej książki (Availabe, Reserved, Checked out, Permanently unavailable - wyświetlane tylko dla bibliotekarza)
+- Bibliotekarz może ręcznie usunąć rezerwację książki
 
-### Realizacja rozwiązania
+## Realizacja rozwiązania
 - ASP.NET Core Identity - Uwierzytelnianie i autoryzacja, role-based authorization
     - Dostęp do konkretnych akcji jest blokowany dla użytkowników bez przypisanej odpowiedniej roli (Librarian, Reader)
-- Entity Framework - zarządzanie bazą danych (SQL Server LocalDB)
+    - Użytkownicy czasami są przekierowywani do właściwych dla swojej roli akcji
+- Entity Framework - zarządzanie bazą danych (SQL Server LocalDB), mapowanie relacji obiektów
 - MVC
-    - Models
+    - Models:
         - ApplicationUser - użytkownicy systemu
         - Book - książka
         - BookGenreViewModel - model umożliwiający wyszukiwanie książek po gatunku wybieranym z rozwijanej listy
@@ -33,26 +36,26 @@
         - ReservationBookViewModel - model rezerwacji poszerzony o podstawowe informacje o książce
         - Checkout - wypożyczenia
         - CheckoutBookViewModel - model wypożyczeń poszerzony o podstawowe informacje o książce
-    - Controllers
+    - Controllers:
         - HomeController
         - BooksController
         - ReservationsController
         - CheckoutsController
-    - Views
-        - Shared
-        - Home
+    - Views:
+        - Shared: - layaut, ...
+        - Home:
             - Index
-        - Books
+        - Books:
             - Index, IndexLibrarian, IndexReader
             - Details, DetailsLibrarian
             - Create
             - Delete
             - Edit
-        - Reservations
+        - Reservations:
             - Index, IndexLibrarian, IndexReader
             - Reserve
             - Unreserve
-        - Checkouts
+        - Checkouts:
             - Index, IndexLibrarian, IndexReader
             - Checkout
             - Endcheckout

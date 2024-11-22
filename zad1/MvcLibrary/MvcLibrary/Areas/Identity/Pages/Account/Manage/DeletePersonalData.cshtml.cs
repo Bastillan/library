@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using MvcLibrary.Data;
 using MvcLibrary.Models;
 
 namespace MvcLibrary.Areas.Identity.Pages.Account.Manage
@@ -18,15 +19,18 @@ namespace MvcLibrary.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
+        private readonly ApplicationDbContext _context;
 
         public DeletePersonalDataModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<DeletePersonalDataModel> logger)
+            ILogger<DeletePersonalDataModel> logger,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _context = context;
         }
 
         /// <summary>
@@ -87,16 +91,27 @@ namespace MvcLibrary.Areas.Identity.Pages.Account.Manage
                 }
             }
 
-            var result = await _userManager.DeleteAsync(user);
-            var userId = await _userManager.GetUserIdAsync(user);
-            if (!result.Succeeded)
+            if (User.IsInRole("Librarian"))
             {
-                throw new InvalidOperationException($"Unexpected error occurred deleting user.");
+                return NotFound("Can't delete Librarian");
             }
+            else if(_context.Checkout.Any(c => c.EndTime == null && c.UserName == User.Identity.Name))
+            {
+                return NotFound("You have some books still not returned");
+            }
+            else
+            {
+                var result = await _userManager.DeleteAsync(user);
+                var userId = await _userManager.GetUserIdAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException($"Unexpected error occurred deleting user.");
+                }
 
-            await _signInManager.SignOutAsync();
+                await _signInManager.SignOutAsync();
 
-            _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
+                _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
+            }
 
             return Redirect("~/");
         }

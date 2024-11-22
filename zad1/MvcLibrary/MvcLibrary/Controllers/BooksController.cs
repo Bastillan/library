@@ -11,6 +11,7 @@ using Microsoft.Extensions.Primitives;
 using MvcLibrary.Data;
 using MvcLibrary.Models;
 using Microsoft.AspNetCore.Identity;
+using MvcLibrary.Data.Migrations;
 
 namespace MvcLibrary.Controllers
 {
@@ -219,10 +220,22 @@ namespace MvcLibrary.Controllers
             var book = await _context.Book.FindAsync(id);
             if (book != null)
             {
-                _context.Book.Remove(book);
+                if (_context.Reservation.Any(c => c.BookId == book!.Id))
+                {
+                    var reservation = _context.Reservation.FirstOrDefault(b => b.BookId == book!.Id);
+                    _context.Reservation.Remove(reservation!);
+                }
+                if (_context.Checkout.Any(c => c.BookId == book!.Id))
+                {
+                    book.Status = "Permanently unavailable";
+                    _context.Book.Update(book);
+                }
+                else
+                {
+                    _context.Book.Remove(book);
+                }
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

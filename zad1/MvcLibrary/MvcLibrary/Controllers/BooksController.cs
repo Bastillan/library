@@ -38,6 +38,21 @@ namespace MvcLibrary.Controllers
             var books = from b in _context.Book
                         select b;
 
+            var reservations = from r in _context.Reservation
+                               select r;
+
+            foreach (var reservation in reservations)
+            {
+                if (DateTime.Now > reservation.ValidDate)
+                {
+                    var book = _context.Book.FirstOrDefault(b => b.Id == reservation.BookId);
+                    book!.Status = "Available";
+                    _context.Book.Update(book);
+                    _context.Reservation.Remove(reservation);
+                }
+            }
+            await _context.SaveChangesAsync();
+
             if (!string.IsNullOrEmpty(title))
             {
                 books = books.Where(b => b.Title!.ToUpper().Contains(title.ToUpper()));

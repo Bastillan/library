@@ -1,0 +1,19 @@
+﻿@model MvcLibrary.Models.Book
+
+@{
+    ViewData["Title"] = "Reserve";
+}
+
+<h1>Do you want to reserve "@Html.DisplayFor(model => model.Title)"?</h1>
+
+<hr />
+
+<form asp-asp-controller="Reservations" asp-action="Reserve">
+    <input type="hidden" name="id" asp-for="Id" />
+    <input type="submit" value="Reserve" class="btn btn-danger" />
+    <a asp-area="" asp-controller="Books" asp-action="Index">Back to List</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,78 @@
+﻿@model MvcLibrary.Models.BookGenreViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Books</h1>
+
+<p>
+    <a asp-action="Create">Add book</a>
+</p>
+
+<form asp-controller="Books" asp-action="Index" method="get">
+    <p>
+        <label>Genre: <select asp-for="BookGenre" asp-items="Model.Genres">
+            <option value="">All</option>
+        </select></label>
+        <label>Title: <input type="text" asp-for="Title" /></label>
+        <label>Author: <input type="text" asp-for="Author" /></label>
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Books![0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books![0].Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books![0].Genre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books![0].Publisher)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books![0].PublicationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Books![0].Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Books!)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Author)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Genre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Publisher)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PublicationDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

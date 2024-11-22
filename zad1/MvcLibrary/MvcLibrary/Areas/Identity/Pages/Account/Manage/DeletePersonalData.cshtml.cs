@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MvcLibrary.Data;
 using MvcLibrary.Models;
@@ -101,6 +102,16 @@ namespace MvcLibrary.Areas.Identity.Pages.Account.Manage
             }
             else
             {
+                //if (_context.Reservation.Any(r => r.UserName == User.Identity.Name))
+                //{
+                //    foreach (var reservation in _context.Reservation)
+                //    {
+                //        if (StillReserved(reservation))
+                //        {
+                //            return NotFound("You have some books still reserved");
+                //        }
+                //    }
+                //}
                 var result = await _userManager.DeleteAsync(user);
                 var userId = await _userManager.GetUserIdAsync(user);
                 if (!result.Succeeded)
@@ -114,6 +125,19 @@ namespace MvcLibrary.Areas.Identity.Pages.Account.Manage
             }
 
             return Redirect("~/");
+        }
+
+        private bool StillReserved(Reservation reservation)
+        {
+            if (DateTime.Now > reservation.ValidDate)
+            {
+                var book = _context.Book.FirstOrDefault(b => b.Id == reservation.BookId);
+                book!.Status = "Available";
+                _context.Book.Update(book);
+                _context.Reservation.Remove(reservation);
+                return false;
+            }
+            return true;
         }
     }
 }

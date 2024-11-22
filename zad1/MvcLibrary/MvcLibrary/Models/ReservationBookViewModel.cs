@@ -12,7 +12,6 @@ namespace MvcLibrary.Models
         [Display(Name = "Reservation started")]
         [DataType(DataType.Date)]
         public DateTime? ReservationDate { get; set; }
-        [Required]
         [Display(Name = "Valid to")]
         [DataType(DataType.Date)]
         public DateTime? ValidDate { get; set; }

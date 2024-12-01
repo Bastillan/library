@@ -235,7 +235,7 @@ namespace MvcLibrary.Controllers
 
         // GET: Books/Delete/5
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, bool? concurrencyError)
         {
             if (id == null)
             {
@@ -246,7 +246,21 @@ namespace MvcLibrary.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (book == null)
             {
+                if (concurrencyError.GetValueOrDefault())
+                {
+                    return RedirectToAction(nameof(Index));
+                }
                 return NotFound();
+            }
+
+            if (concurrencyError.GetValueOrDefault())
+            {
+                ViewData["ConcurrencyErrorMessage"] = "The record you attempted to delete "
+                    + "was modified by another user after you got the original values. "
+                    + "The delete operation was canceled and the current values in the "
+                    + "database have been displayed. If you still want to delete this "
+                    + "record, click the Delete button again. Otherwise "
+                    + "click the Back to List hyperlink.";
             }
 
             return View(book);
@@ -256,28 +270,35 @@ namespace MvcLibrary.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Book book)
         {
-            var book = await _context.Book.FindAsync(id);
-            if (book != null)
+            try
             {
-                if (_context.Reservation.Any(c => c.BookId == book!.Id))
+                if (await _context.Book.AnyAsync(b => b.Id == book.Id))
                 {
-                    var reservation = _context.Reservation.FirstOrDefault(b => b.BookId == book!.Id);
-                    _context.Reservation.Remove(reservation!);
+                    if (_context.Reservation.Any(c => c.BookId == book!.Id))
+                    {
+                        var reservation = _context.Reservation.FirstOrDefault(b => b.BookId == book!.Id);
+                        _context.Reservation.Remove(reservation!);
+                    }
+
+                    if (_context.Checkout.Any(c => c.BookId == book!.Id))
+                    {
+                        book.Status = "Permanently unavailable";
+                        _context.Book.Update(book);
+                    }
+                    else
+                    {
+                        _context.Book.Remove(book);
+                    }
+                    await _context.SaveChangesAsync();
                 }
-                if (_context.Checkout.Any(c => c.BookId == book!.Id))
-                {
-                    book.Status = "Permanently unavailable";
-                    _context.Book.Update(book);
-                }
-                else
-                {
-                    _context.Book.Remove(book);
-                }
-                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateConcurrencyException)
+            {
+                return RedirectToAction(nameof(Delete), new { concurrencyError = true, id = book.Id });
+            }
         }
 
         private bool BookExists(int id)

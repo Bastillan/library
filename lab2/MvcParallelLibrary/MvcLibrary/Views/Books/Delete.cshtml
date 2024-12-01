@@ -6,6 +6,8 @@
 
 <h1>Delete</h1>
 
+<p class="text-danger">@ViewData["ConcurrencyErrorMessage"]</p>
+
 <h3>Are you sure you want to delete this book?</h3>
 <div>
     <hr />
@@ -44,6 +46,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="RowVersion" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

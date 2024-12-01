@@ -162,7 +162,7 @@ namespace MvcLibrary.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Genre,Publisher,PublicationDate,Status")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Genre,Publisher,PublicationDate,Status,RowVersion")] Book book)
         {
             if (id != book.Id)
             {
@@ -171,21 +171,62 @@ namespace MvcLibrary.Controllers
 
             if (ModelState.IsValid)
             {
+                _context.Entry(book).Property("RowVersion").OriginalValue = book.RowVersion;
                 try
                 {
                     _context.Update(book);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
-                    if (!BookExists(book.Id))
+                    var exceptionEntry = ex.Entries.Single();
+                    var clientValues = (Book)exceptionEntry.Entity;
+                    var databaseEntry = exceptionEntry.GetDatabaseValues();
+
+                    if (databaseEntry == null)
                     {
-                        return NotFound();
+                        ModelState.AddModelError(string.Empty,
+                            "Unable to save changes. The book was deleted by another user.");
                     }
                     else
                     {
-                        throw;
+                        var databaseValues = (Book)databaseEntry.ToObject();
+
+                        if (databaseValues.Title != clientValues.Title)
+                        {
+                            ModelState.AddModelError("Title", $"Current value: {databaseValues.Title}");
+                        }
+                        if (databaseValues.Author != clientValues.Author)
+                        {
+                            ModelState.AddModelError("Author", $"Current value: {databaseValues.Author}");
+                        }
+                        if (databaseValues.Genre != clientValues.Genre)
+                        {
+                            ModelState.AddModelError("Genre", $"Current value: {databaseValues.Genre}");
+                        }
+                        if (databaseValues.Publisher != clientValues.Publisher)
+                        {
+                            ModelState.AddModelError("Publisher", $"Current value: {databaseValues.Publisher}");
+                        }
+                        if (databaseValues.PublicationDate != clientValues.PublicationDate)
+                        {
+                            ModelState.AddModelError("PublicationDate", $"Current value: {databaseValues.PublicationDate}");
+                        }
+                        if (databaseValues.Status != clientValues.Status)
+                        {
+                            ModelState.AddModelError("Status", $"Current value: {databaseValues.Status}");
+                        }
+
+                        ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+                                + "was modified by another user after you got the original value. The "
+                                + "edit operation was canceled and the current values in the database "
+                                + "have been displayed. If you still want to edit this record, click "
+                                + "the Save button again. Otherwise click the Back to List hyperlink.");
+                        book.RowVersion = databaseValues.RowVersion;
+                        ModelState.Remove("RowVersion");
                     }
+
+                    return View(book);
                 }
                 return RedirectToAction(nameof(Index));
             }

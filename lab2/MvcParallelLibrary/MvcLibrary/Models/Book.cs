@@ -20,5 +20,8 @@ namespace MvcLibrary.Models
         public DateTime? PublicationDate { get; set; }
         [Required]
         public string? Status { get; set; }
+
+        [Timestamp]
+        public byte[]? RowVersion { get; set; }
     }
 }

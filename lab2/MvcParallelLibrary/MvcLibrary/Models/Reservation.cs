@@ -7,6 +7,7 @@ namespace MvcLibrary.Models
     {
         public int Id { get; set; }
         [Required]
+        [Display(Name = "Username")]
         public string? UserName { get; set; }
         [Required]
         public int BookId { get; set; }

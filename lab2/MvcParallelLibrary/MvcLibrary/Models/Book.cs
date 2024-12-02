@@ -15,7 +15,7 @@ namespace MvcLibrary.Models
         [Required]
         public string? Publisher { get; set; }
         [Required]
-        [Display(Name = "Publication Date")]
+        [Display(Name = "Publication date")]
         [DataType(DataType.Date)]
         public DateTime? PublicationDate { get; set; }
         [Required]

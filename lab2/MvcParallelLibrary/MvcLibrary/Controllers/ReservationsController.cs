@@ -114,6 +114,7 @@ namespace MvcLibrary.Controllers
                 };
                 reservations = reservations.Concat(new[] { new_reservation });
             }
+            reservations = reservations.Where(b => b.UserName == User.Identity!.Name);
 
             if (!string.IsNullOrEmpty(title))
             {
@@ -124,7 +125,6 @@ namespace MvcLibrary.Controllers
             {
                 reservations = reservations.Where(b => b.Author!.ToUpper().Contains(author.ToUpper()));
             }
-            reservations = reservations.Where(b => b.UserName == User.Identity!.Name);
 
             return View(reservations);
         }

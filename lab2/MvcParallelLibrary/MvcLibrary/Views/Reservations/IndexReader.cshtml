@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<MvcLibrary.Models.ReservationBookViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "My reservations";
 }
 
 <h1>Reservations</h1>
@@ -17,12 +17,6 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.UserName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BookId)
-            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Title)
             </th>
@@ -42,12 +36,6 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.BookId)
-                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>

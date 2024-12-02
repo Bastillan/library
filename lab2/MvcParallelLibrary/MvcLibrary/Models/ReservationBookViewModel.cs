@@ -5,6 +5,7 @@ namespace MvcLibrary.Models
     public class ReservationBookViewModel
     {
         public int Id { get; set; }
+        [Display(Name = "Username")]
         public string? UserName { get; set; }
         public int BookId { get; set; }
         public string? Title { get; set; }

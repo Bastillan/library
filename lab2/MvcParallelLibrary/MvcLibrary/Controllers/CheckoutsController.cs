@@ -106,6 +106,8 @@ namespace MvcLibrary.Controllers
                 checkouts = checkouts.Concat(new[] { new_checkout });
             }
 
+            checkouts = checkouts.Where(b => b.UserName == User.Identity!.Name);
+
             if (!string.IsNullOrEmpty(title))
             {
                 checkouts = checkouts.Where(b => b.Title!.ToUpper().Contains(title.ToUpper()));
@@ -115,7 +117,6 @@ namespace MvcLibrary.Controllers
             {
                 checkouts = checkouts.Where(b => b.Author!.ToUpper().Contains(author.ToUpper()));
             }
-            checkouts = checkouts.Where(b => b.UserName == User.Identity!.Name);
 
             return View(checkouts);
         }

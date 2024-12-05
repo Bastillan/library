@@ -267,11 +267,26 @@ namespace MvcLibrary.Controllers
         }
 
         // POST: Books/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> DeleteConfirmed(Book book)
+        public async Task<IActionResult> Delete(int? id, byte[] rowVersion)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var book = await _context.Book.FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Entry(book).Property("RowVersion").OriginalValue = rowVersion;
+
+
             try
             {
                 if (await _context.Book.AnyAsync(b => b.Id == book.Id))
@@ -281,7 +296,7 @@ namespace MvcLibrary.Controllers
                         var reservation = _context.Reservation.FirstOrDefault(b => b.BookId == book!.Id);
                         _context.Reservation.Remove(reservation!);
                     }
-
+                    // TODO: when checkout is active
                     if (_context.Checkout.Any(c => c.BookId == book!.Id))
                     {
                         book.Status = "Permanently unavailable";

@@ -131,7 +131,7 @@ namespace MvcLibrary.Controllers
 
         // GET: Reservations/Reserve
         [Authorize(Roles = "Reader")]
-        public async Task<IActionResult> Reserve(int? id)
+        public async Task<IActionResult> Reserve(int? id, bool? concurrencyError)
         {
             if (id == null)
             {
@@ -145,6 +145,25 @@ namespace MvcLibrary.Controllers
                 return NotFound();
             }
 
+            if (concurrencyError.GetValueOrDefault())
+            {
+                if (book.Status != "Available")
+                {
+                    ViewData["ErrorMessage"] = "The book you attempted to reserve "
+                    + "is no longer available."
+                    + "Click the Back to List hyperlink.";
+                }
+                else
+                {
+                    ViewData["ErrorMessage"] = "The details of the book you attempted to reserve "
+                    + "was modified by another user. "
+                    + "Your reserve operation was canceled. "
+                    + "If you still want to reserve this "
+                    + "book, click the Reserve button again. Otherwise "
+                    + "click the Back to List hyperlink.";
+                }
+            }
+
             return View(book);
         }
 
@@ -154,7 +173,7 @@ namespace MvcLibrary.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Reader")]
-        public async Task<IActionResult> Reserve(int id)
+        public async Task<IActionResult> Reserve(int? id, byte[] rowVersion)
         {
             var book = await _context.Book.FirstOrDefaultAsync(b => b.Id == id);
 
@@ -163,23 +182,32 @@ namespace MvcLibrary.Controllers
                 return NotFound();
             }
 
+
             if (book.Status == "Available")
             {
-                book.Status = "Reserved";
-
-                _context.Update(book);
-                Reservation reservation = new Reservation()
+                try
                 {
-                    UserName = User.Identity!.Name,
-                    BookId = book.Id,
-                    ReservationDate = DateTime.Now,
-                    ValidDate = DateTime.Now.AddDays(2).Date
-                };
-                _context.Reservation.Add(reservation);
-                await _context.SaveChangesAsync();
+                    book.Status = "Reserved";
+                    _context.Update(book);
+                    Reservation reservation = new Reservation()
+                    {
+                        UserName = User.Identity!.Name,
+                        BookId = book.Id,
+                        ReservationDate = DateTime.Now,
+                        ValidDate = DateTime.Now.AddDays(2).Date
+                    };
+                    _context.Reservation.Add(reservation);
+                    await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return RedirectToAction(nameof(Reserve), new {concurrencyError = true, id = book.Id });
+                }
             }
+            ViewData["ErrorMessage"] = "You can not reserve this book. "
+                    + "Click the Back to List hyperlink.";
             return View(book);
         }
 

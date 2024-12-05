@@ -124,7 +124,7 @@ namespace MvcLibrary.Controllers
 
         // GET: Checkouts/Checkout
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> Checkout(int? id)
+        public async Task<IActionResult> Checkout(int? id, bool? concurrencyError)
         {
             if (id == null)
             {
@@ -136,8 +136,33 @@ namespace MvcLibrary.Controllers
             {
                 return NotFound();
             }
+            var book = await _context.Book.FindAsync(reservation.BookId);
+            if (book == null)
+            {
+                return NotFound();
+            }
 
-            return View(reservation);
+            var reservation_book = new ReservationBookViewModel
+            {
+                Id = reservation.Id,
+                UserName = reservation.UserName,
+                BookId = reservation.BookId,
+                Title = book.Title,
+                Author = book.Author,
+                ReservationDate = reservation.ReservationDate,
+                ValidDate = reservation.ValidDate
+            };
+
+            if (concurrencyError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] = "This book was recently modified by another user. "
+                        + "Check out operation was canceled. "
+                        + "If you still want to check out this book, "
+                        + "click the Checkout button again. Otherwise "
+                        + "click the Back to List hyperlink.";
+            }
+
+            return View(reservation_book);
         }
 
         // POST: Checkouts/Checkout
@@ -149,21 +174,56 @@ namespace MvcLibrary.Controllers
         public async Task<IActionResult> Checkout(int id)
         {
             var reservation = await _context.Reservation.FindAsync(id);
-            var book = await _context.Book.FindAsync(reservation!.BookId);
-            book!.Status = "Checked out";
-            Checkout checkout = new Checkout()
+            if (reservation == null)
             {
-                UserName = reservation.UserName,
-                BookId = book.Id,
-                StartTime = DateTime.Now,
-                EndTime = null
-            };
-            await _context.Checkout.AddAsync(checkout);
-            _context.Book.Update(book);
-            _context.Reservation.Remove(reservation!);
-            await _context.SaveChangesAsync();
+                return NotFound();
+            }
+            var book = await _context.Book.FindAsync(reservation.BookId);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            if (book.Status != "Reserved")
+            {
+                ViewData["ErrorMessage"] = "You can not check out this book. "
+                    + "It is no longer reserved. "
+                    + "Click the Back to List hyperlink.";
 
-            return RedirectToAction(nameof(IndexLibrarian));
+                var reservation_book = new ReservationBookViewModel
+                {
+                    Id = reservation.Id,
+                    UserName = reservation.UserName,
+                    BookId = reservation.BookId,
+                    Title = book.Title,
+                    Author = book.Author,
+                    ReservationDate = reservation.ReservationDate,
+                    ValidDate = reservation.ValidDate
+                };
+                return View(reservation_book);
+            }
+
+            try
+            {
+                book.Status = "Checked out";
+                _context.Book.Update(book);
+                _context.Reservation.Remove(reservation);
+                Checkout checkout = new Checkout()
+                {
+                    UserName = reservation.UserName,
+                    BookId = book.Id,
+                    StartTime = DateTime.Now,
+                    EndTime = null
+                };
+                _context.Checkout.Add(checkout);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(IndexLibrarian));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return RedirectToAction(nameof(Checkout), new {concurrecyError = true, id = reservation.Id});
+            }
+            
         }
 
         // GET: Checkouts/EndCheckout/5

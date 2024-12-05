@@ -292,8 +292,8 @@ namespace MvcLibrary.Controllers
                     Id = reservation.Id,
                     UserName = reservation.UserName,
                     BookId = reservation.BookId,
-                    Title = book!.Title,
-                    Author = book!.Author,
+                    Title = book.Title,
+                    Author = book.Author,
                     ReservationDate = reservation.ReservationDate,
                     ValidDate = reservation.ValidDate
                 };

@@ -214,7 +214,9 @@ namespace MvcLibrary.Controllers
                         }
                         if (databaseValues.Status != clientValues.Status)
                         {
-                            ModelState.AddModelError("Status", $"Current value: {databaseValues.Status}");
+                            ModelState.AddModelError("Status", $"Previous value: {clientValues.Status}");
+                            book.Status = databaseValues.Status;
+                            ModelState.Remove("Status");
                         }
 
                         ModelState.AddModelError(string.Empty, "The record you attempted to edit "

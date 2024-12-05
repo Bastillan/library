@@ -1,19 +1,47 @@
-﻿@model MvcLibrary.Models.Reservation
+﻿@model MvcLibrary.Models.ReservationBookViewModel
 
 @{
     ViewData["Title"] = "Checkout";
 }
 
-<h1>Checkout</h1>
+<h2>Do you want to checkout this book to user "@Html.DisplayFor(model => model.UserName)"?</h2>
 
-<h2>Do you want to checkout this book to "@Html.DisplayFor(model => model.UserName)"?</h2>
+<p class="text-danger">@ViewData["ErrorMessage"]</p>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Author)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Author)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ReservationDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ReservationDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ValidDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ValidDate)
+        </dd>
+    </dl>
 
-<hr />
-<form asp-asp-controller="Checkouts" asp-action="Checkout">
-    <input type="hidden" asp-for="Id" />
-    <input type="submit" value="Checkout" class="btn btn-danger" />
-    <a asp-area="" asp-controller="Books" asp-action="Index">Back to List</a>
-</form>
+    <form asp-action="Checkout">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Checkout" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
 
 
 @section Scripts {

@@ -171,7 +171,7 @@ namespace MvcLibrary.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Entry(book).Property("RowVersion").OriginalValue = book.RowVersion;
+                //_context.Entry(book).Property("RowVersion").OriginalValue = book.RowVersion;
                 try
                 {
                     _context.Update(book);

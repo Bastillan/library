@@ -222,7 +222,7 @@ namespace MvcLibrary.Controllers
         // GET: Reservations/Unreserve/5
         //[Authorize(Roles = "Librarian")]
         [Authorize(Roles = "Reader, Librarian")]
-        public async Task<IActionResult> Unreserve(int? id)
+        public async Task<IActionResult> Unreserve(int? id, bool? concurrecyError)
         {
             if (id == null)
             {
@@ -235,8 +235,32 @@ namespace MvcLibrary.Controllers
             {
                 return NotFound();
             }
+            var book = await _context.Book.FindAsync(reservation.BookId);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            var reservation_book = new ReservationBookViewModel
+            {
+                Id = reservation.Id,
+                UserName = reservation.UserName,
+                BookId = reservation.BookId,
+                Title = book.Title,
+                Author = book.Author,
+                ReservationDate = reservation.ReservationDate,
+                ValidDate = reservation.ValidDate
+            };
 
-            return View(reservation);
+            if (concurrecyError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] = "This book was recently modified by another user. "
+                        + "Reservation is still valid. "
+                        + "If you still want to cancel this reservation, "
+                        + "click the Unreserve button again. Otherwise "
+                        + "click the Back to List hyperlink.";
+            }
+
+            return View(reservation_book);
         }
 
         // POST: Reservations/Unreserve/5
@@ -246,29 +270,51 @@ namespace MvcLibrary.Controllers
         public async Task<IActionResult> UnreserveConfirmed(int id)
         {
             var reservation = await _context.Reservation.FindAsync(id);
-            if (reservation != null)
+            if (reservation == null)
             {
-                _context.Reservation.Remove(reservation);
-                var book = await _context.Book.FirstOrDefaultAsync(b => b.Id == reservation.BookId);
+                return NotFound();
+            }
+            var book = await _context.Book.FirstOrDefaultAsync(b => b.Id == reservation.BookId);
 
-                if (book == null)
-                {
-                    return NotFound();
-                }
-
-                if (book.Status == "Reserved")
-                {
-                    book.Status = "Available";
-
-                    _context.Update(book);
-                    await _context.SaveChangesAsync();
-
-                    return RedirectToAction(nameof(Index));
-                }
+            if (book == null)
+            {
+                return NotFound();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if (book.Status != "Reserved")
+            {
+                ViewData["ErrorMessage"] = "The status of this book was recently changed. "
+                        + "It is no longer reserved. "
+                        + "Click the Back to List hyperlink.";
+
+                var reservation_book = new ReservationBookViewModel
+                {
+                    Id = reservation.Id,
+                    UserName = reservation.UserName,
+                    BookId = reservation.BookId,
+                    Title = book!.Title,
+                    Author = book!.Author,
+                    ReservationDate = reservation.ReservationDate,
+                    ValidDate = reservation.ValidDate
+                };
+
+                return View(reservation_book);
+            }
+
+            try
+            {
+                book.Status = "Available";
+                _context.Update(book);
+                _context.Reservation.Remove(reservation);                
+                
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return RedirectToAction(nameof(Unreserve), new { concurrencyError = true, id = reservation.Id });
+            }
         }
 
         private bool ReservationExists(int id)

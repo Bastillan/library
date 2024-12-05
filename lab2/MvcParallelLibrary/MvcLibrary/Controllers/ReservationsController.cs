@@ -147,19 +147,20 @@ namespace MvcLibrary.Controllers
 
             if (concurrencyError.GetValueOrDefault())
             {
-                if (book.Status != "Available")
+                if (book.Status != "Available") //właściwie się nie zdarzy, chyba, że klikną równocześnie, bo w post jest pobierany aktualny status
                 {
                     ViewData["ErrorMessage"] = "The book you attempted to reserve "
-                    + "is no longer available."
+                    + "is no longer available. "
+                    + "It has just been reserved. Sorry... "
                     + "Click the Back to List hyperlink.";
                 }
                 else
                 {
                     ViewData["ErrorMessage"] = "The details of the book you attempted to reserve "
                     + "was modified by another user. "
-                    + "Your reserve operation was canceled. "
-                    + "If you still want to reserve this "
-                    + "book, click the Reserve button again. Otherwise "
+                    + "Your reservation was canceled. "
+                    + "If you still want to reserve this book, "
+                    + "click the Reserve button again. Otherwise "
                     + "click the Back to List hyperlink.";
                 }
             }
@@ -175,6 +176,11 @@ namespace MvcLibrary.Controllers
         [Authorize(Roles = "Reader")]
         public async Task<IActionResult> Reserve(int? id, byte[] rowVersion)
         {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
             var book = await _context.Book.FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
@@ -182,9 +188,10 @@ namespace MvcLibrary.Controllers
                 return NotFound();
             }
 
-
             if (book.Status == "Available")
             {
+                _context.Entry(book).Property("RowVersion").OriginalValue = rowVersion;
+
                 try
                 {
                     book.Status = "Reserved";
@@ -207,6 +214,7 @@ namespace MvcLibrary.Controllers
                 }
             }
             ViewData["ErrorMessage"] = "You can not reserve this book. "
+                    + "It is not available. "
                     + "Click the Back to List hyperlink.";
             return View(book);
         }

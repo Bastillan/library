@@ -255,11 +255,11 @@ namespace MvcLibrary.Controllers
 
             if (concurrencyError.GetValueOrDefault())
             {
-                ViewData["ConcurrencyErrorMessage"] = "The record you attempted to delete "
+                ViewData["ConcurrencyErrorMessage"] = "The book you attempted to delete "
                     + "was modified by another user after you got the original values. "
                     + "The delete operation was canceled and the current values in the "
                     + "database have been displayed. If you still want to delete this "
-                    + "record, click the Delete button again. Otherwise "
+                    + "book, click the Delete button again. Otherwise "
                     + "click the Back to List hyperlink.";
             }
 
@@ -286,28 +286,31 @@ namespace MvcLibrary.Controllers
 
             _context.Entry(book).Property("RowVersion").OriginalValue = rowVersion;
 
-
             try
             {
-                if (await _context.Book.AnyAsync(b => b.Id == book.Id))
+                if (_context.Checkout.Any(c => c.BookId == book!.Id))
                 {
-                    if (_context.Reservation.Any(c => c.BookId == book!.Id))
-                    {
-                        var reservation = _context.Reservation.FirstOrDefault(b => b.BookId == book!.Id);
-                        _context.Reservation.Remove(reservation!);
-                    }
-                    // TODO: when checkout is active
-                    if (_context.Checkout.Any(c => c.BookId == book!.Id))
-                    {
-                        book.Status = "Permanently unavailable";
-                        _context.Book.Update(book);
-                    }
-                    else
-                    {
-                        _context.Book.Remove(book);
-                    }
-                    await _context.SaveChangesAsync();
+                    book.Status = "Permanently unavailable";
+                    _context.Book.Update(book);
                 }
+                else
+                {
+                    _context.Book.Remove(book);
+                }
+
+                var reservation = await _context.Reservation.FirstOrDefaultAsync(b => b.BookId == book.Id);
+                if (reservation != null)
+                {
+                    _context.Reservation.Remove(reservation);
+                }
+                var checkout = await _context.Checkout.Where(b => b.EndTime == null).FirstOrDefaultAsync(b => b.BookId == book.Id);
+                if (checkout  != null)
+                {
+                    checkout.EndTime = DateTime.Now;
+                    _context.Checkout.Update(checkout);
+                }
+
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)

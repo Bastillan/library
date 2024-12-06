@@ -12,6 +12,8 @@ using MvcLibrary.Data;
 using MvcLibrary.Models;
 using Microsoft.AspNetCore.Identity;
 using MvcLibrary.Data.Migrations;
+using static System.Reflection.Metadata.BlobBuilder;
+using X.PagedList.Extensions;
 
 namespace MvcLibrary.Controllers
 {
@@ -25,7 +27,7 @@ namespace MvcLibrary.Controllers
         }
 
         // GET: Books
-        public async Task<IActionResult> Index(string bookGenre, string title, string author)
+        public async Task<IActionResult> Index(string bookGenre, string title, string author, int? page)
         {
             if (_context.Book == null)
             {
@@ -74,10 +76,14 @@ namespace MvcLibrary.Controllers
                 books = books.Where(s => s.Status != "Permanently unavailable");
             }
 
+            var pageNumber = page ?? 1;
+            var booksList = await books.ToListAsync();
+            var onePageOffBooks = booksList.ToPagedList(pageNumber, 15);
+
             var bookGenreVM = new BookGenreViewModel
             {
                 Genres = new SelectList(await genreQuery.Distinct().ToListAsync()),
-                Books = await books.ToListAsync()
+                Books = onePageOffBooks
             };
 
             if (User.IsInRole("Librarian"))

@@ -1,5 +1,5 @@
 # Narzędzia typu RAD
-## Zadanie 1 - Biblioteka w ASP.MVC
+## Zadanie 2 - Biblioteka w ASP.MVC
 - [X] Proszę napisać prosty system obsługi biblioteki
 - [X] Istnieje jeden specjalny (istniejący) użytkownik 'librarian'
 - [X] Zwykły użytkownik musi się zalogować do swojego konta, jak nie ma konta to może takie stworzyć w procesie rejestracji konta (bez potwierdzania mailowego)
@@ -11,6 +11,8 @@
 - [X] Lista książek w bibliotece jest zarządzana przez użytkownika 'librarian' Jeżeli książka była choć raz wypożyczona to jej skasowanie polega na zaznaczeniu że jest trwale niedostepna (i niewidoczna przy wyszukiwaniu przez zwykłych użytkowników).
 - [X] Użytkownik librarian może wyświetlić listę wszystkich rezerwacji i wyszukaną rezerwację zmienić na wypożyczenie
 - [X] Użytkownik librarian może wyświetlić listę wszystkich wypożyczeń i w wyszukanym wypożyczeniu zmienić informację, że książka jest dostępna
+- [X] Dodanie poprawnej obsługi równoległości. Dodanie pól odpowiedzialnych za wykrywanie konfliktów.
+- [X] Udokumentowanie procesu migracji bazy danych
 
 ## Dodatkowe funkcjonalności
 - Użytkownik może wyszukiwać książki (a także swoje rezerwacje i wypożyczenia), wpisując tytuł, autora lub wybierając gatunek książki
@@ -21,12 +23,13 @@
 - W modelu książki zamiast pola ceny jest pole gatunku
 - Wyświetlany jest status wypożyczenia danej książki (Availabe, Reserved, Checked out, Permanently unavailable - wyświetlane tylko dla bibliotekarza)
 - Bibliotekarz może ręcznie usunąć rezerwację książki
+- Stronicowanie widoku listy książek
 
 ## Realizacja rozwiązania
 - ASP.NET Core Identity - Uwierzytelnianie i autoryzacja, role-based authorization
     - Dostęp do konkretnych akcji jest blokowany dla użytkowników bez przypisanej odpowiedniej roli (Librarian, Reader)
-    - Użytkownicy czasami są przekierowywani do właściwych dla swojej roli akcji
-- Entity Framework - zarządzanie bazą danych (SQL Server LocalDB), mapowanie relacji obiektów
+    - Użytkownicy są przekierowywani do właściwych dla swojej roli akcji
+- Entity Framework - zarządzanie bazą danych (SQL Server LocalDB), mapowanie relacji obiektów, migracje
 - MVC
     - Models:
         - ApplicationUser - użytkownicy systemu
@@ -59,3 +62,11 @@
             - Index, IndexLibrarian, IndexReader
             - Checkout
             - Endcheckout
+
+## Obsługa współbieżności
+Zaimplementowano wariant optymistycznej współbieżności. Do modelu `Book` dodano pole `RowVersion` z atrybutem `[Timestamp]`, które jest tablicą bajtów. Wartość tego pola jest automatycznie zwiększana po każdej modyfikacji danego rekordu w bazie danych.
+
+Podczas wykonywania modyfikacji danego rekordu (`Update`, `Delete`) kolumna `RowVersion` zostaje automatycznie uwzględniona w klauzuli `Where`. Jeżeli aktualizowany wiersz został zmieniony przez innego użytkownika, to wartości `RowVersion` w bazie danych i w poleceniu modyfikacji będą się różnić. W wyniku tego zostanie zgłoszony wyjątek `DbUpdateConcurrencyError`, który jest obsługiwany na poziomie kontrolerów.
+
+## Migracje
+Kolejne zastosowane migracje znajdują się w katalogu *Data/Migrations/*.

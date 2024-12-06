@@ -228,21 +228,45 @@ namespace MvcLibrary.Controllers
 
         // GET: Checkouts/EndCheckout/5
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> EndCheckout(int? id)
+        public async Task<IActionResult> EndCheckout(int? id, bool? concurrencyError)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var checkout = await _context.Checkout
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var checkout = await _context.Checkout.FindAsync(id);
             if (checkout == null)
             {
                 return NotFound();
             }
+            var book = await _context.Book.FindAsync(checkout.BookId);
+            if (book == null)
+            {
+                return NotFound();
+            }
 
-            return View(checkout);
+            var checkout_book = new CheckoutBookViewModel
+            {
+                Id = checkout.Id,
+                UserName = checkout.UserName,
+                BookId = checkout.BookId,
+                Title = book.Title,
+                Author = book.Author,
+                StartTime = checkout.StartTime,
+                EndTime = checkout.EndTime
+            };
+
+            if (concurrencyError.GetValueOrDefault())
+            {
+                ViewData["ErrorMessage"] = "This book was recently modified by another user. "
+                        + "Checkout is still valid. "
+                        + "If you want to end checkout of this book, "
+                        + "click the Endheckout button again. Otherwise "
+                        + "click the Back to List hyperlink.";
+            }
+
+            return View(checkout_book);
         }
 
         // POST: Checkouts/EndCheckout/5
@@ -252,21 +276,49 @@ namespace MvcLibrary.Controllers
         public async Task<IActionResult> EndCheckoutConfirmed(int id)
         {
             var checkout = await _context.Checkout.FindAsync(id);
-            var book = await _context.Book.FindAsync(checkout!.BookId);
-
-            if (checkout != null && checkout.EndTime == null)
+            if (checkout == null)
             {
-                checkout.EndTime = DateTime.Now;
-                _context.Checkout.Update(checkout);
+                return NotFound();
             }
-            if(book != null)
+
+            var book = await _context.Book.FindAsync(checkout.BookId);
+            if (book == null )
+            {
+                return NotFound();
+            }
+            if (book.Status != "Checked out" || checkout.EndTime != null)
+            {
+                ViewData["ErrorMessage"] = "The status of this book was recently changed. "
+                    + "It is no longer checked out. "
+                    + "Click the Back to List hyperlink.";
+
+                var checkout_book = new CheckoutBookViewModel
+                {
+                    Id = checkout.Id,
+                    UserName = checkout.UserName,
+                    BookId = checkout.BookId,
+                    Title = book.Title,
+                    Author = book.Author,
+                    StartTime = checkout.StartTime,
+                    EndTime = checkout.EndTime
+                };
+
+                return View(checkout_book);
+            }
+
+            try
             {
                 book.Status = "Available";
                 _context.Book.Update(book);
+                checkout.EndTime = DateTime.Now;
+                _context.Checkout.Update(checkout);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateConcurrencyException)
+            {
+                return RedirectToAction(nameof(EndCheckout), new { concurrencyError = true, id = checkout.Id });
+            }
         }
 
         private bool CheckoutExists(int id)

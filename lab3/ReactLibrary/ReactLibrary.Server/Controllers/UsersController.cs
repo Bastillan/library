@@ -67,9 +67,39 @@ namespace ReactLibrary.Server.Controllers
 
         }
 
+        [HttpPost]
+        [Route("register")]
+        public async Task<IActionResult> Register(RegistrationRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            var user = new ApplicationUser
+            {
+                UserName = request.UserName,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+            };
 
+            var result = await _userManager.CreateAsync(user, request.Password!);
 
+            if (result.Succeeded)
+            {
+                request.Password = "";
+                await _userManager.AddToRoleAsync(user, "Reader");
+                return CreatedAtAction(nameof(Register), new { username = request.UserName, role = "Reader" }, request);
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
+
+            return BadRequest(ModelState);
+        }
 
         private async Task<string> GenerateToken(ApplicationUser user)
         {
@@ -99,7 +129,7 @@ namespace ReactLibrary.Server.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName!),
 
             };
 

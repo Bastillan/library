@@ -25,7 +25,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
 }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
-var jwtSettings = builder.Configuration.GetSection("JWT");
+var jwtSettings = builder.Configuration.GetSection("JWT") ?? throw new InvalidOperationException("'JWT' section not found");
 var secret = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
 
 builder.Services.AddAuthentication(options =>
@@ -109,4 +109,35 @@ app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
 
-app.Run();
+using (var scope = app.Services.CreateScope())
+using (var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>())
+using (var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>())
+{
+    var roles = new[] { "Librarian", "Reader" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }    
+    }
+
+    if (await userManager.FindByNameAsync("Librarian") == null)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = "Librarian",
+            Email = "reactlibrary@react.pl",
+            FirstName = "librarian",
+            LastName = "librarian"
+        };
+        await userManager.CreateAsync(user, "Zad3@react");
+        await userManager.AddToRoleAsync(user, "Librarian");
+    }
+
+    //var services = scope.ServiceProvider;
+    //SeedData.Initialize(services);
+}
+
+    app.Run();

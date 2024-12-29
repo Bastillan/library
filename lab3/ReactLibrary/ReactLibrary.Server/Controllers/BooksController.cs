@@ -23,9 +23,43 @@ namespace ReactLibrary.Server.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBook()
+        public async Task<ActionResult<IEnumerable<Book>>> GetBook(string? bookGenre, string? title, string? author)
         {
-            return await _context.Book.ToListAsync();
+            var reservations = from r in _context.Reservation select r;
+
+            foreach (var reservation in reservations)
+            {
+                if (DateTime.Now > reservation.ValidDate)
+                {
+                    var book = _context.Book.FirstOrDefault(b => b.Id == reservation.BookId);
+                    book!.Status = "Available";
+                    _context.Book.Update(book);
+                    _context.Reservation.Remove(reservation);
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            var books = from b in _context.Book select b;
+
+            if (!string.IsNullOrEmpty(title))
+            {
+                books = books.Where(b => b.Title!.ToUpper().Contains(title.ToUpper()));
+            }
+            if (!string.IsNullOrEmpty(author))
+            {
+                books = books.Where(b => b.Author!.ToUpper().Contains(author.ToUpper()));
+            }
+            if (!string.IsNullOrEmpty(bookGenre))
+            {
+                books = books.Where(b => b.Genre == bookGenre);
+            }
+
+            if (!User.IsInRole("Librarian"))
+            {
+                books = books.Where(b => b.Status != "Permanently unavailable");
+            }
+
+            return await books.ToListAsync();
         }
 
         // GET: api/Books/5
@@ -39,20 +73,36 @@ namespace ReactLibrary.Server.Controllers
                 return NotFound();
             }
 
+            if (!User.IsInRole("Librarian") && book.Status == "Permanently unavailable")
+            {
+                return NotFound();
+            }
+
             return book;
         }
 
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, Book book)
+        public async Task<IActionResult> PutBook(int id, PutBookDTO bookDTO)
         {
-            if (id != book.Id)
+            if (id != bookDTO.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(book).State = EntityState.Modified;
+            var book = await _context.Book.FindAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            book.Title = bookDTO.Title;
+            book.Author = bookDTO.Author;
+            book.Genre = bookDTO.Genre;
+            book.Publisher = bookDTO.Publisher;
+            book.PublicationDate = bookDTO.PublicationDate;
+            book.RowVersion = bookDTO.RowVersion;
 
             try
             {
@@ -66,7 +116,8 @@ namespace ReactLibrary.Server.Controllers
                 }
                 else
                 {
-                    throw;
+                    //throw;
+                    return Conflict();
                 }
             }
 
@@ -76,12 +127,22 @@ namespace ReactLibrary.Server.Controllers
         // POST: api/Books
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Book>> PostBook(Book book)
+        public async Task<ActionResult<Book>> PostBook(PostBookDTO bookDTO)
         {
+            var book = new Book
+            {
+                Title = bookDTO.Title,
+                Author = bookDTO.Author,
+                Genre = bookDTO.Genre,
+                Publisher = bookDTO.Publisher,
+                PublicationDate = bookDTO.PublicationDate,
+                Status = "Available"
+            };
+
             _context.Book.Add(book);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBook", new { id = book.Id }, book);
+            return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
         }
 
         // DELETE: api/Books/5

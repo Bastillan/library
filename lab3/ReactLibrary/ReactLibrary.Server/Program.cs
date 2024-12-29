@@ -111,7 +111,10 @@ app.MapFallbackToFile("/index.html");
 using (var scope = app.Services.CreateScope())
 using (var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>())
 using (var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>())
+using (var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
 {
+    db.Database.Migrate();
+
     var roles = new[] { "Librarian", "Reader" };
 
     foreach (var role in roles)

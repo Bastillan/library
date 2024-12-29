@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -119,12 +120,17 @@ namespace ReactLibrary.Server.Controllers
 
             if (user.Id != id)
             {
-                return BadRequest("Can't delete another user");
+                return Forbid("Can't delete another user");
             }
 
             if (User.IsInRole("Librarian"))
             {
-                return BadRequest("Can't delete Librarian");
+                return Forbid("Can't delete Librarian");
+            }
+
+            if (_context.Checkout.Any(c => c.EndTime == null && c.UserName == User.Identity.Name))
+            {
+                return Forbid("You have some books still not returned");
             }
             
             var result = await _userManager.DeleteAsync(user);

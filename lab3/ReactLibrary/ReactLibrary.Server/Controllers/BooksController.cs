@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,15 @@ namespace ReactLibrary.Server.Controllers
         {
             _context = context;
         }
+
+        [HttpGet]
+        [Route("genres")]
+        public async Task<ActionResult<IEnumerable<string>>> GetGenres()
+        {
+            var genres = from b in _context.Book orderby b.Genre select b.Genre;
+            return await genres.Distinct().ToListAsync();
+        }
+
 
         // GET: api/Books
         [HttpGet]
@@ -84,6 +94,7 @@ namespace ReactLibrary.Server.Controllers
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> PutBook(int id, PutBookDTO bookDTO)
         {
             if (id != bookDTO.Id)
@@ -127,6 +138,7 @@ namespace ReactLibrary.Server.Controllers
         // POST: api/Books
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize (Roles = "Librarian")]
         public async Task<ActionResult<Book>> PostBook(PostBookDTO bookDTO)
         {
             var book = new Book

@@ -135,8 +135,8 @@ using (var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Id
         await userManager.AddToRoleAsync(user, "Librarian");
     }
 
-    //var services = scope.ServiceProvider;
-    //SeedData.Initialize(services);
+    var services = scope.ServiceProvider;
+    SeedData.Initialize(services);
 }
 
     app.Run();

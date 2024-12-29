@@ -1,7 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -99,6 +101,45 @@ namespace ReactLibrary.Server.Controllers
             }
 
             return BadRequest(ModelState);
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteUser(String id)
+        {
+            //if (User.IsInRole("Librarian"))
+            //return Ok(User.Identity.IsAuthenticated);
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (user.Id != id)
+            {
+                return BadRequest("Can't delete another user");
+            }
+
+            if (User.IsInRole("Librarian"))
+            {
+                return BadRequest("Can't delete Librarian");
+            }
+            
+            var result = await _userManager.DeleteAsync(user);
+            
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(error.Code, error.Description);
+                }
+
+                return BadRequest(ModelState);
+            }
+
+            return Ok();
         }
 
         private async Task<string> GenerateToken(ApplicationUser user)

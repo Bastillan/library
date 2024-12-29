@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using ReactLibrary.Server.Data;
 using ReactLibrary.Server.Models;
+using ReactLibrary.Server.Models.Api;
 
 namespace ReactLibrary.Server.Controllers
 {

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReactLibrary.Server.Data;
 using ReactLibrary.Server.Models;
+using ReactLibrary.Server.Models.Api;
 
 namespace ReactLibrary.Server.Controllers
 {
@@ -29,7 +30,6 @@ namespace ReactLibrary.Server.Controllers
             var genres = from b in _context.Book orderby b.Genre select b.Genre;
             return await genres.Distinct().ToListAsync();
         }
-
 
         // GET: api/Books
         [HttpGet]

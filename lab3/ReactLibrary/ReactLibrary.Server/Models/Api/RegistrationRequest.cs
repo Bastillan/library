@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ReactLibrary.Server.Models
+namespace ReactLibrary.Server.Models.Api
 {
     public class RegistrationRequest
     {

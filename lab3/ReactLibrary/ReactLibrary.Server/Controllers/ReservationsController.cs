@@ -157,6 +157,7 @@ namespace ReactLibrary.Server.Controllers
 
         // DELETE: api/Reservations/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteReservation(int id)
         {
             var reservation = await _context.Reservation.FindAsync(id);

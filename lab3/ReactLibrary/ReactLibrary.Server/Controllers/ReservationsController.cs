@@ -110,7 +110,7 @@ namespace ReactLibrary.Server.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "Reader")]
-        public async Task<IActionResult> MakeReservation(int id)
+        public async Task<ActionResult<Reservation>> MakeReservation(int id)
         {
             var book = await _context.Book.FindAsync(id);
 

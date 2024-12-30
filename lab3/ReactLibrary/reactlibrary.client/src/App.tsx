@@ -1,58 +1,25 @@
-import { useEffect, useState } from 'react';
-import './App.css';
-
-interface Forecast {
-    date: string;
-    temperatureC: number;
-    temperatureF: number;
-    summary: string;
-}
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./pages/Layout";
+import Home from "./pages/Home";
+import Books from "./pages/Books";
+import Reservations from "./pages/Reservations";
+import Checkouts from "./pages/Checkouts";
+import NoPage from "./pages/NoPage";
 
 function App() {
-    const [forecasts, setForecasts] = useState<Forecast[]>();
-
-    useEffect(() => {
-        populateWeatherData();
-    }, []);
-
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
-
     return (
-        <div>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Layout />}>
+                    <Route index element={<Home />} />
+                    <Route path="books" element={<Books />} />
+                    <Route path="reservations" element={<Reservations />} />
+                    <Route path="checkouts" element={<Checkouts />} />
+                    <Route path="*" element={<NoPage /> } />
+                </Route>
+            </Routes>
+        </BrowserRouter>
     );
-
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        if (response.ok) {
-            const data = await response.json();
-            setForecasts(data);
-        }
-    }
 }
 
 export default App;

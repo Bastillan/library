@@ -159,6 +159,7 @@ namespace ReactLibrary.Server.Controllers
 
         // DELETE: api/Books/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Librarian")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var book = await _context.Book.FindAsync(id);
@@ -167,10 +168,43 @@ namespace ReactLibrary.Server.Controllers
                 return NotFound();
             }
 
-            _context.Book.Remove(book);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if (_context.Checkout.Any(c => c.BookId == book.Id))
+                {
+                    book.Status = "Permanently unavailable";
+                    _context.Book.Update(book);
+                }
+                else
+                {
+                    _context.Book.Remove(book);
+                }
 
-            return NoContent();
+                var reservation = await _context.Reservation.FirstOrDefaultAsync(r => r.BookId == book.Id);
+                if (reservation != null)
+                {
+                    _context.Reservation.Remove(reservation);
+                }
+
+                var checkout = await _context.Checkout.Where(c => c.EndTime == null).FirstOrDefaultAsync(c => c.BookId == book.Id);
+                if (checkout != null)
+                {
+                    checkout.EndTime = DateTime.Now;
+                    _context.Checkout.Update(checkout);
+                }
+
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BookExists(id))
+                {
+                    return NotFound();
+                }
+
+                return Conflict();
+            }
         }
 
         private bool BookExists(int id)

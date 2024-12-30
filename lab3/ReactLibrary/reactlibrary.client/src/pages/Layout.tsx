@@ -46,8 +46,11 @@ function Layout() {
                     </div>
                 </nav>
             </header>
-
-            <Outlet />
+            <div className="container">
+                <main role="main" className="pb-3">
+                    <Outlet />
+                </main>
+            </div>
         </>
     );
 }

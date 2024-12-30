@@ -50,6 +50,14 @@ export default defineConfig({
             '^/weatherforecast': {
                 target,
                 secure: false
+            },
+            '/auth': {
+                target,
+                secure: false
+            },
+            '/api': {
+                target,
+                secure: false
             }
         },
         port: 50907,

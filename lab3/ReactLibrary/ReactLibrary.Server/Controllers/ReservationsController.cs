@@ -48,7 +48,6 @@ namespace ReactLibrary.Server.Controllers
                     ReservationDate = reservation.ReservationDate,
                     ValidDate = reservation.ValidDate
                 };
-
                 reservations = reservations.Concat(new[] { reservationDTO });
             }
 
@@ -140,18 +139,11 @@ namespace ReactLibrary.Server.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 var book_after = _context.Book.Find(id);
-                if (book_after == null)
-                {
-                    return NotFound();
-                }
-                if (book_after.Status != "Available")
+                if (book_after == null || book_after.Status != "Available")
                 {
                     return BadRequest();
                 }
-                else
-                {
-                    return Conflict();
-                }
+                return Conflict();
             }
         }
 
@@ -167,12 +159,7 @@ namespace ReactLibrary.Server.Controllers
             }
 
             var book = await _context.Book.FindAsync(reservation.BookId);
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            if (book.Status != "Reserved")
+            if (book == null || book.Status != "Reserved")
             {
                 return Conflict();
             }
@@ -193,18 +180,11 @@ namespace ReactLibrary.Server.Controllers
                     return NotFound();
                 }
                 var book_after = _context.Book.Find(reservation.BookId);
-                if (book_after == null)
-                {
-                    return NotFound();
-                }
-                if (book_after.Status != "Reserved")
+                if (book_after == null || book_after.Status != "Reserved")
                 {
                     return BadRequest();
                 }
-                else
-                {
-                    return Conflict();
-                }
+                return Conflict();
             }
         }
 

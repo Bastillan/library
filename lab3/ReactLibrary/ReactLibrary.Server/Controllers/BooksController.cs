@@ -33,7 +33,7 @@ namespace ReactLibrary.Server.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBook(string? bookGenre, string? title, string? author)
+        public async Task<ActionResult<IEnumerable<Book>>> GetBook(string? genre, string? title, string? author)
         {
             var reservations = from r in _context.Reservation select r;
 
@@ -59,9 +59,9 @@ namespace ReactLibrary.Server.Controllers
             {
                 books = books.Where(b => b.Author!.ToUpper().Contains(author.ToUpper()));
             }
-            if (!string.IsNullOrEmpty(bookGenre))
+            if (!string.IsNullOrEmpty(genre))
             {
-                books = books.Where(b => b.Genre == bookGenre);
+                books = books.Where(b => b.Genre == genre);
             }
 
             if (!User.IsInRole("Librarian"))

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../services/api";
 
 import { Book } from '../types/Books';
 
@@ -31,7 +32,7 @@ function Books() {
     }
 
     async function fetchGenres() {
-        await axios.get('/api/Books/genres')
+        await api.get('/Books/genres')
             .then(response => {
                 setGenres(response.data);
             })
@@ -41,7 +42,7 @@ function Books() {
     }
 
     async function fetchBooks() {
-        await axios.get(`/api/Books?genre=${genre}&title=${title}&author=${author}`)
+        await api.get(`/Books?genre=${genre}&title=${title}&author=${author}`)
             .then(response => {
                 setBooks(response.data);
             })

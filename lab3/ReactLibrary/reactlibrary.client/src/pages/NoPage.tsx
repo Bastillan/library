@@ -1,6 +1,6 @@
 function NoPage() {
   return (
-    <p>Hello world!</p>
+    <p>No page</p>
   );
 }
 

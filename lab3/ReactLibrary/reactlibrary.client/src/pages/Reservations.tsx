@@ -1,6 +1,6 @@
 function Reservations() {
   return (
-    <p>Hello world!</p>
+    <p>Reservations</p>
   );
 }
 

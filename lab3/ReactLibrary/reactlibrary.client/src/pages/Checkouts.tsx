@@ -1,6 +1,6 @@
 function Checkouts() {
   return (
-    <p>Hello world!</p>
+    <p>Checkouts</p>
   );
 }
 

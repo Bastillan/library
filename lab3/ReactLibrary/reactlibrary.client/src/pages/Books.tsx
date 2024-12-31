@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import api from "../services/api";
 
-import { Book } from '../types/Books';
+import api from "../services/api";
+import { Book } from "../types/Books";
 
 function Books() {
     const [books, setBooks] = useState<Book[]>([]);

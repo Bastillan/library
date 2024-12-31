@@ -1,6 +1,9 @@
 import { Outlet, Link } from "react-router-dom";
 
+import { useAuth } from '../services/useAuth';
+
 function Layout() {
+    const { user, logout } = useAuth();
     return (
         <>
             <header>
@@ -27,20 +30,25 @@ function Layout() {
                                 </li>
                             </ul>
                             <ul className="navbar-nav">
-                                <li className="nav-item">
-                                    <Link className="nav-link text-dark" to="/account/">Hello user</Link>
-                                </li>
-                                <li className="nav-item">
-                                    <Link className="nav-link text-dark" to="/account/logout">Logout</Link>
-                                </li>
-                            </ul>
-                            <ul className="navbar-nav">
-                                <li className="nav-item">
-                                    <Link className="nav-link text-dark" to="/account/register">Register</Link>
-                                </li>
-                                <li className="nav-item">
-                                    <Link className="nav-link text-dark" to="/account/login">Login</Link>
-                                </li>
+                                {user ? (
+                                    <>
+                                        <li className="nav-item">
+                                            <Link className="nav-link text-dark" to="/account/">Hello {user.username}!</Link>
+                                        </li>
+                                        <li className="nav-item">
+                                            <button className="nav-link text-dark" onClick={logout}>Logout</button>
+                                        </li>
+                                    </>
+                                ) : (
+                                    <>
+                                        <li className="nav-item">
+                                            <Link className="nav-link text-dark" to="/account/register">Register</Link>
+                                        </li>
+                                        <li className="nav-item">
+                                            <Link className="nav-link text-dark" to="/account/login">Login</Link>
+                                        </li>
+                                    </>
+                                )}
                             </ul>
                         </div>
                     </div>

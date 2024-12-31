@@ -9,26 +9,28 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Logout from "./pages/Logout";
 import NoPage from "./pages/NoPage";
+import { AuthProvider } from './services/AuthContext';
 
 function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    <Route index element={<Home />} />
-                    <Route path="books" element={<Books />} />
-                    <Route path="reservations" element={<Reservations />} />
-                    <Route path="checkouts" element={<Checkouts />} />
-                    <Route path="account">
-                        <Route index element={<Account /> }/>
-                        <Route path="register" element={<Register />} />
-                        <Route path="login" element={<Login />} />
-                        <Route path="logout" element={<Logout />} />
-                    </Route>    
-                    <Route path="*" element={<NoPage /> } />
-                </Route>
-            </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        <Route index element={<Home />} />
+                        <Route path="books" element={<Books />} />
+                        <Route path="reservations" element={<Reservations />} />
+                        <Route path="checkouts" element={<Checkouts />} />
+                        <Route path="account">
+                            <Route index element={<Account /> }/>
+                            <Route path="register" element={<Register />} />
+                            <Route path="login" element={<Login />} />
+                        </Route>    
+                        <Route path="*" element={<NoPage /> } />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
     );
 }
 

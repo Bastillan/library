@@ -14,7 +14,7 @@ using ReactLibrary.Server.Models.Api;
 
 namespace ReactLibrary.Server.Controllers
 {
-    [Route("auth/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {

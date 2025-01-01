@@ -92,9 +92,23 @@ namespace ReactLibrary.Server.Controllers
 
             if (result.Succeeded)
             {
-                request.Password = "";
+                var userInDb = _context.Users.FirstOrDefault(u => u.UserName == request.UserName);
+                if (userInDb == null)
+                {
+                    return Unauthorized();
+                }
+
+                var accessToken = await GenerateToken(userInDb);
+
                 await _userManager.AddToRoleAsync(user, "Reader");
-                return CreatedAtAction(nameof(Register), new { username = request.UserName, role = "Reader" }, request);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(Register), new { userInDb.Id }, new AuthResponse
+                {
+                    UserId = userInDb.Id,
+                    AuthToken = accessToken,
+                    RefreshToken = string.Empty
+                });
             }
 
             foreach (var error in result.Errors)

@@ -7,7 +7,6 @@ import Checkouts from "./pages/Checkouts";
 import Account from "./pages/Account";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import Logout from "./pages/Logout";
 import NoPage from "./pages/NoPage";
 import { AuthProvider } from './services/AuthContext';
 

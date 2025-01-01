@@ -33,8 +33,13 @@ export const AuthProvider = ({ children }: Props) => {
 
     const login = (token: string) => {
         localStorage.setItem('token', token);
-        const decoded: User = jwtDecode(token);
-        setUser(decoded);
+        const decoded: any = jwtDecode(token);
+        setUser({
+            id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'], // User ID
+            username: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'], // Username
+            role: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'], // Role
+            exp: decoded.exp, // Expiration time
+        });
     };
 
     const logout = () => {

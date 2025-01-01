@@ -44,13 +44,13 @@ namespace ReactLibrary.Server.Controllers
             var user = await _userManager.FindByNameAsync(request.UserName!);
             if (user == null)
             {
-                return BadRequest("Bad credentials");
+                return BadRequest("Invalid login attempt");
             }
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password!);
             if (!isPasswordValid)
             {
-                return BadRequest("Bad credentials");
+                return BadRequest("Invalid login attempt");
             }
 
             var userInDb = _context.Users.FirstOrDefault(u => u.UserName == request.UserName);

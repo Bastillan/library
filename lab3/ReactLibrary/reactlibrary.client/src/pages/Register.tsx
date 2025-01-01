@@ -80,7 +80,7 @@ function Register() {
                     setErrors(formattedErrors);
                 }
             } else {
-                setError("An error occured.Please try again.");
+                setError("An error occured. Please try again.");
             }
         }
     };
@@ -92,7 +92,7 @@ function Register() {
             <form onSubmit={handleSubmit}>
                 <div className="form-floating mb-3">
                     <input className="form-control" placeholder="username" aria-required="true" type="text" name="UserName" onChange={handleInputChange} />
-                    <label>Username</label>
+                    <label className="form-label">Username</label>
                     {errors.UserName && (
                         <div className="text-danger">
                             {errors.UserName.map((err, index) => (
@@ -103,7 +103,7 @@ function Register() {
                 </div>
                 <div className="form-floating mb-3">
                     <input className="form-control" placeholder="firstname" aria-required="true" type="text" name="FirstName" onChange={handleInputChange} />
-                    <label>First name</label>
+                    <label className="form-label">First name</label>
                     {errors.FirstName && (
                         <div className="text-danger">
                             {errors.FirstName.map((err, index) => (
@@ -114,7 +114,7 @@ function Register() {
                 </div>
                 <div className="form-floating mb-3">
                     <input className="form-control" placeholder="lastname" aria-required="true" type="text" name="LastName" onChange={handleInputChange} />
-                    <label>Last name</label>
+                    <label className="form-label">Last name</label>
                     {errors.LastName && (
                         <div className="text-danger">
                             {errors.LastName.map((err, index) => (
@@ -125,7 +125,7 @@ function Register() {
                 </div>
                 <div className="form-floating mb-3">
                     <input className="form-control" placeholder="email" aria-required="true" type="email" name="Email" onChange={handleInputChange} />
-                    <label>Email</label>
+                    <label className="form-label">Email</label>
                     {errors.Email && (
                         <div className="text-danger">
                             {errors.Email.map((err, index) => (
@@ -136,7 +136,7 @@ function Register() {
                 </div>
                 <div className="form-floating mb-3">
                     <input className="form-control" placeholder="password" aria-required="true" type="password" name="Password" onChange={handleInputChange} />
-                    <label>Password</label>
+                    <label className="form-label">Password</label>
                     {errors.Password && (
                         <div className="text-danger">
                             {errors.Password.map((err, index) => (
@@ -147,7 +147,7 @@ function Register() {
                 </div>
                 <div className="form-floating mb-3">
                     <input className="form-control" placeholder="confirmpassword" aria-required="true" type="password" name="ConfirmPassword" onChange={(event) => { setConfirmPassword(event?.target.value) }} />
-                    <label>Confirm Password</label>
+                    <label className="form-label">Confirm Password</label>
                     {errors.ConfirmPassword && (
                         <div className="text-danger">
                             {errors.ConfirmPassword.map((err, index) => (

@@ -33,7 +33,7 @@ function Layout() {
                                 {user ? (
                                     <>
                                         <li className="nav-item">
-                                            <Link className="nav-link text-dark" to="/account/">Hello {user.username}!</Link>
+                                            <Link className="nav-link text-dark" to="/account/">Hello {user?.username}!</Link>
                                         </li>
                                         <li className="nav-item">
                                             <button className="nav-link text-dark" onClick={logout}>Logout</button>

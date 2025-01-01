@@ -53,7 +53,7 @@ function Login() {
                     setError(error.response.data);
                 }
             } else {
-                setError("An error occured. Please try again.")
+                setError("An error occured. Please try again.");
             }
         }
     };

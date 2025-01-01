@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Azure.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -30,6 +31,30 @@ namespace ReactLibrary.Server.Controllers
             _userManager = userManager;
             _context = context;
             _configuration = configuration;
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<ActionResult<UserDTO>> GetUser(string id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            if (User.Identity?.Name != user.UserName)
+            {
+                return Unauthorized();
+            }
+            var userDTO = new UserDTO
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+            };
+            return Ok(userDTO);
         }
 
         [HttpPost]
@@ -135,29 +160,24 @@ namespace ReactLibrary.Server.Controllers
 
             if (user.Id != id)
             {
-                return Forbid("Can't delete another user");
+                return BadRequest("Can't delete another user");
             }
 
             if (User.IsInRole("Librarian"))
             {
-                return Forbid("Can't delete Librarian");
+                return BadRequest("Can't delete Librarian");
             }
 
             if (_context.Checkout.Any(c => c.EndTime == null && c.UserName == User.Identity.Name))
             {
-                return Forbid("You have some books still not returned");
+                return BadRequest("You have some books still not returned");
             }
             
             var result = await _userManager.DeleteAsync(user);
             
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(error.Code, error.Description);
-                }
-
-                return BadRequest(ModelState);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             return Ok();

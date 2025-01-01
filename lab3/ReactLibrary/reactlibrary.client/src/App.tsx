@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import NoPage from "./pages/NoPage";
 import { AuthProvider } from './services/AuthProvider';
+import PrivateRoute from './services/PrivateRoute';
 
 function App() {
     return (
@@ -18,10 +19,10 @@ function App() {
                     <Route path="/" element={<Layout />}>
                         <Route index element={<Home />} />
                         <Route path="books" element={<Books />} />
-                        <Route path="reservations" element={<Reservations />} />
-                        <Route path="checkouts" element={<Checkouts />} />
+                        <Route path="reservations" element={<PrivateRoute><Reservations /></PrivateRoute>} />
+                        <Route path="checkouts" element={<PrivateRoute><Checkouts /></PrivateRoute>} />
                         <Route path="account">
-                            <Route index element={<Account /> }/>
+                            <Route index element={<PrivateRoute><Account /></PrivateRoute> }/>
                             <Route path="register" element={<Register />} />
                             <Route path="login" element={<Login />} />
                         </Route>    

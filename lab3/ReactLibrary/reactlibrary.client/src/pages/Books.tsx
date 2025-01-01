@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 
 import api from "../services/api";
-import { Book } from "../types/Books";
+
+interface Book {
+    id: number;
+    title: string;
+    author: string;
+    genre: string;
+    publisher: string;
+    publicationDate: string;
+    status: string;
+    rowVersion: string;
+}
 
 function Books() {
     const [books, setBooks] = useState<Book[]>([]);

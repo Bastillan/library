@@ -102,6 +102,11 @@ namespace ReactLibrary.Server.Controllers
                 return BadRequest();
             }
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var book = await _context.Book.FindAsync(id);
             if (book == null)
             {

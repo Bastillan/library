@@ -42,9 +42,10 @@ const AddBookModal = ({ modalId, onBookAdded }: AddBookModalProps) => {
         event.preventDefault();
         setError(null);
         setErrors({});
+        setMessage(null);
 
         try {
-            const response = await api.post("Books", postBookDTO);
+            const response = await api.post("/Books", postBookDTO);
 
             if (response.status === 201) {
                 onBookAdded();

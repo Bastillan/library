@@ -53,7 +53,7 @@ function Register() {
         }
 
         try {
-            const response = await api.post("Users/register", formData);
+            const response = await api.post("/Users/register", formData);
 
             if (response.status === 201) {
                 const token = response.data.authToken;

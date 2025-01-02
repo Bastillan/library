@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import { useAuth } from '../services/useAuth';
 import AddBookModal from '../modals/AddBookModal';
+import EditBookModal from '../modals/EditBookModal';
 
 interface Book {
     id: number;
@@ -25,6 +26,7 @@ function Books() {
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const { user } = useAuth();
+    const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
 
     const handleChangeGenre = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setGenre(event.currentTarget.value);
@@ -45,7 +47,7 @@ function Books() {
     }
 
     const handleDeleteBook = async (bookId: number) => {
-        await api.delete(`/Books/${bookId}`)
+        await api.delete(`Books/${bookId}`)
             .then(() => {
                 fetchData();
                 setMessage('Book was successfully deleted');
@@ -70,8 +72,8 @@ function Books() {
             .then(response => {
                 setGenres(response.data);
             })
-            .catch(error => {
-                setError(error);
+            .catch(() => {
+                setError('Could not fetch data.');
             })
     }
 
@@ -80,8 +82,8 @@ function Books() {
             .then(response => {
                 setBooks(response.data);
             })
-            .catch(error => {
-                setError(error);
+            .catch(() => {
+                setError('Could not fetch data.');
             })
             .finally(() => {
                 setLoading(false);
@@ -93,7 +95,6 @@ function Books() {
     }, []);
 
     if (loading) return "Loading...";
-    if (error) return "Error!";
     return (
         <>
             <h1>Books</h1>
@@ -102,6 +103,7 @@ function Books() {
                     <button type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#AddModal">Add</button>
                 </>
             )}
+            {error && <div className="alert alert-danger">{error}</div>}
             {message && <div className="alert alert-success">{message}</div>}
             <form className="form-inline" onSubmit={handleSubmit}>
                 <label className="me-2">Genre: <select onChange={handleChangeGenre}>
@@ -138,7 +140,7 @@ function Books() {
                             <td>
                                 {user?.role == "Librarian" && (
                                     <>
-                                        <button className="btn btn-primary btn-sm">Edit</button>
+                                        <button className="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#EditModal" onClick={() => setSelectedBookId(book.id)}>Edit</button>
                                         <button className="btn btn-danger btn-sm" onClick={() => handleDeleteBook(book.id)}>Delete</button>
                                     </>
                                 )}
@@ -148,6 +150,7 @@ function Books() {
                 </tbody>
             </table>
             <AddBookModal modalId="AddModal" onBookAdded={fetchData} />
+            <EditBookModal modalId="EditModal" bookId={selectedBookId} onBookEdited={fetchData} />
         </>
     );
 }

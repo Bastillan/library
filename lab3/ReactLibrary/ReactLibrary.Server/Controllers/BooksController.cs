@@ -141,6 +141,11 @@ namespace ReactLibrary.Server.Controllers
         [Authorize (Roles = "Librarian")]
         public async Task<ActionResult<Book>> PostBook(PostBookDTO bookDTO)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var book = new Book
             {
                 Title = bookDTO.Title,

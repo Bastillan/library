@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import api from "../services/api";
 import { useAuth } from '../services/useAuth';
+import AddBookModal from '../modals/AddBookModal';
 
 interface Book {
     id: number;
@@ -23,6 +24,10 @@ function Books() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const { user } = useAuth();
+    const [showAddBookModal, setShowAddBookModal] = useState(false);
+
+    const handleShowAddBookModal = () => setShowAddBookModal(true);
+    const handleCloseAddBookModal = () => setShowAddBookModal(false);
 
     const handleChangeGenre = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setGenre(event.currentTarget.value);
@@ -77,7 +82,7 @@ function Books() {
             <h1>Books</h1>
             {user?.role == "Librarian" && (
                 <>
-                    <button type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">Add</button>
+                    <button type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#AddModal">Add</button>
                 </>
             )}
             <form className="form-inline" onSubmit={handleSubmit}>
@@ -124,21 +129,7 @@ function Books() {
                     ))}
                 </tbody>
             </table>
-            <div className="modal fade" id="exampleModal" role="dialog" aria-labelledby="exampleTitle" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="exampleTitle">Modal title</h5>
-                            <button type="button" className="close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">modal
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <AddBookModal modalId="AddModal" onBookAdded={fetchBooks} />
         </>
     );
 }

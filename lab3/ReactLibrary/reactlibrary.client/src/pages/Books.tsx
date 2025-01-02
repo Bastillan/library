@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import api from "../services/api";
+import { useAuth } from '../services/useAuth';
 
 interface Book {
     id: number;
@@ -21,6 +22,7 @@ function Books() {
     const [author, setAuthor] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const { user } = useAuth();
 
     const handleChangeGenre = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setGenre(event.currentTarget.value);
@@ -73,6 +75,11 @@ function Books() {
     return (
         <>
             <h1>Books</h1>
+            {user?.role == "Librarian" && (
+                <>
+                    <button className="btn btn-success btn-sm">Add</button>
+                </>
+            )}
             <form className="form-inline" onSubmit={handleSubmit}>
                 <label className="me-2">Genre: <select onChange={handleChangeGenre}>
                     <option value="">All</option>
@@ -105,6 +112,14 @@ function Books() {
                             <td>{book.publisher}</td>
                             <td>{new Date(book.publicationDate).toLocaleDateString()}</td>
                             <td>{book.status}</td>
+                            <td>
+                                {user?.role == "Librarian" && (
+                                    <>
+                                        <button className="btn btn-primary btn-sm">Edit</button>
+                                        <button className="btn btn-danger btn-sm">Delete</button>
+                                    </>
+                                )}
+                            </td>
                         </tr>
                     ))}
                 </tbody>

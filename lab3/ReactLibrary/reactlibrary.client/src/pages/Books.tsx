@@ -77,7 +77,7 @@ function Books() {
             <h1>Books</h1>
             {user?.role == "Librarian" && (
                 <>
-                    <button className="btn btn-success btn-sm">Add</button>
+                    <button type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">Add</button>
                 </>
             )}
             <form className="form-inline" onSubmit={handleSubmit}>
@@ -124,6 +124,21 @@ function Books() {
                     ))}
                 </tbody>
             </table>
+            <div className="modal fade" id="exampleModal" role="dialog" aria-labelledby="exampleTitle" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleTitle">Modal title</h5>
+                            <button type="button" className="close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">modal
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }

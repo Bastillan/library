@@ -23,11 +23,8 @@ function Books() {
     const [author, setAuthor] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
     const { user } = useAuth();
-    const [showAddBookModal, setShowAddBookModal] = useState(false);
-
-    const handleShowAddBookModal = () => setShowAddBookModal(true);
-    const handleCloseAddBookModal = () => setShowAddBookModal(false);
 
     const handleChangeGenre = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setGenre(event.currentTarget.value);
@@ -43,6 +40,27 @@ function Books() {
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
+        fetchData();
+        setMessage(null);
+    }
+
+    const handleDeleteBook = async (bookId: number) => {
+        await api.delete(`/Books/${bookId}`)
+            .then(() => {
+                fetchData();
+                setMessage('Book was successfully deleted');
+            })
+            .catch(error => {
+                if (error.response.status === 404) {
+                    setMessage('Book you wanted to delete was not found');
+                }
+                if (error.response.status === 409) {
+                    setMessage('Book you wanted to delete was just modified by another user. Try again');
+                }
+            })
+    }
+
+    const fetchData = () => {
         fetchBooks();
         fetchGenres();
     }
@@ -71,8 +89,7 @@ function Books() {
     }
 
     useEffect(() => {
-        fetchBooks();
-        fetchGenres();
+        fetchData();
     }, []);
 
     if (loading) return "Loading...";
@@ -85,6 +102,7 @@ function Books() {
                     <button type="button" className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#AddModal">Add</button>
                 </>
             )}
+            {message && <div className="alert alert-success">{message}</div>}
             <form className="form-inline" onSubmit={handleSubmit}>
                 <label className="me-2">Genre: <select onChange={handleChangeGenre}>
                     <option value="">All</option>
@@ -121,7 +139,7 @@ function Books() {
                                 {user?.role == "Librarian" && (
                                     <>
                                         <button className="btn btn-primary btn-sm">Edit</button>
-                                        <button className="btn btn-danger btn-sm">Delete</button>
+                                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteBook(book.id)}>Delete</button>
                                     </>
                                 )}
                             </td>
@@ -129,7 +147,7 @@ function Books() {
                     ))}
                 </tbody>
             </table>
-            <AddBookModal modalId="AddModal" onBookAdded={fetchBooks} />
+            <AddBookModal modalId="AddModal" onBookAdded={fetchData} />
         </>
     );
 }

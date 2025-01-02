@@ -23,6 +23,7 @@ const AddBookModal = ({ modalId, onBookAdded }: AddBookModalProps) => {
     });
     const [error, setError] = useState<string | null>(null);
     const [errors, setErrors] = useState<Record<string, string[]>>({});
+    const [message, setMessage] = useState<string | null>(null);
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -47,6 +48,7 @@ const AddBookModal = ({ modalId, onBookAdded }: AddBookModalProps) => {
 
             if (response.status === 201) {
                 onBookAdded();
+                setMessage("Successfully added new book")
             }
         } catch (error: any) {
             if (error.response) {
@@ -69,6 +71,7 @@ const AddBookModal = ({ modalId, onBookAdded }: AddBookModalProps) => {
                     </div>
                     <div className="modal-body">
                         {error && <div className="alert alert-danger">{error}</div>}
+                        {message && <div className="alert alert-success">{message}</div>}
                         <form>
                             <div className="form-floating mb-3">
                                 <input className="form-control" placeholder="Title" aria-required="true" type="text" name="Title" onChange={handleInputChange} />

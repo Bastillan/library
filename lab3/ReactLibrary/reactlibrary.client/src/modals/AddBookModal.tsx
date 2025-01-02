@@ -54,6 +54,9 @@ const AddBookModal = ({ modalId, onBookAdded }: AddBookModalProps) => {
             if (error.response) {
                 if (error.response.status === 400) {
                     setError("Invalid input");
+                    if (error.response.data.errors) {
+                        setErrors(error.response.data.errors);
+                    }
                 }
             } else {
                 setError("An error occured. Please try again.");

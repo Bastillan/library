@@ -128,7 +128,7 @@ namespace ReactLibrary.Server.Controllers
                 await _userManager.AddToRoleAsync(user, "Reader");
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(Register), new { userInDb.Id }, new AuthResponse
+                return CreatedAtAction(nameof(GetUser), new { userInDb.Id }, new AuthResponse
                 {
                     UserId = userInDb.Id,
                     AuthToken = accessToken,

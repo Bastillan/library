@@ -63,8 +63,8 @@ function Books() {
     }
 
     const fetchData = () => {
-        fetchBooks();
         fetchGenres();
+        fetchBooks();
     }
 
     async function fetchGenres() {

@@ -98,7 +98,7 @@ const EditBookModal = ({ modalId, bookId, onBookEdited }: EditBookModalProps) =>
                     Author: data.author,
                     Genre: data.genre,
                     Publisher: data.publisher,
-                    PublicationDate: new Date(data.publicationDate).toLocaleDateString(),
+                    PublicationDate: data.publicationDate.split('T')[0],
                     RowVersion: data.rowVersion,
                 });
             })
@@ -110,6 +110,10 @@ const EditBookModal = ({ modalId, bookId, onBookEdited }: EditBookModalProps) =>
     useEffect(() => {
         if (bookId) {
             fetchBook();
+            setMessage(null);
+            setError(null);
+        } else {
+            setError("No book id");
         }
     }, [bookId]);
 

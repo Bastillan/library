@@ -1,6 +1,6 @@
-import { Navigate } from 'react-router-dom';
 import { ReactNode } from 'react';
 import { useAuth } from './useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface PrivateRouteProps {
     children: ReactNode;
@@ -8,9 +8,10 @@ interface PrivateRouteProps {
 
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     if (!user) {
-        return <Navigate to="/account/login" />;
+        navigate('/account/login');
     }
     return (
         <>{children}</>

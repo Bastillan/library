@@ -1,54 +1,50 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 
-interface CancelReservationModalProps {
+interface returnBookModalProps {
     modalId: string;
-    reservationId: number | null;
-    onReservationCanceled: () => void;
+    checkoutId: number | null;
+    onBookReturned: () => void;
 }
 
-const CancelReservationModal = ({ modalId, reservationId, onReservationCanceled }: CancelReservationModalProps) => {
+const ReturnBookModal = ({ modalId, checkoutId, onBookReturned }: returnBookModalProps) => {
     const [message, setMessage] = useState<string | null>(null);
     const [contentDanger, setContentDanger] = useState<string | null>(null);
 
-    const handleDeleteBook = async () => {
-        await api.delete(`/Reservations/${reservationId}`)
+    const handleReturnBook = async () => {
+        await api.delete(`/Checkouts/${checkoutId}`)
             .then(() => {
-                onReservationCanceled();
-                setMessage('Reservation was successfully canceled');
+                onBookReturned();
+                setMessage('Book was successfully returned');
                 setContentDanger(null);
             })
             .catch(error => {
-                if (error.response.status === 404) {
-                    setContentDanger('Reservation you wanted to cancel was not found');
-                    setMessage(null);
-                }
                 if (error.response.status === 409) {
-                    setContentDanger('Book you wanted to cancel reservation for was just modified by another user. Try again');
+                    setContentDanger('Book you wanted to return for was just modified by another user. Try again');
                     setMessage(null);
                 }
                 if (error.response.status === 400) {
-                    setContentDanger('Can not cancel this reservation');
+                    setContentDanger('Can not return this book');
                     setMessage(null);
                 }
             })
     }
 
     useEffect(() => {
-        if (reservationId) {
+        if (checkoutId) {
             setMessage(null);
-            setContentDanger("Are you sure you want to cancel this reservation?");
+            setContentDanger("Are you sure you want to return this book?");
         } else {
-            setContentDanger("No reservation id.");
+            setContentDanger("No checkout id.");
         }
-    }, [reservationId]);
+    }, [checkoutId]);
 
     return (
         <div className="modal fade" id={`${modalId}`} aria-hidden="true" aria-labelledby={`modalTitle${modalId}`} tabIndex={-1}>
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title" id={`modalTitle${modalId}`}>Cancel reservation</h5>
+                        <h5 className="modal-title" id={`modalTitle${modalId}`}>Return book</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
@@ -57,7 +53,7 @@ const CancelReservationModal = ({ modalId, reservationId, onReservationCanceled 
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" className="btn btn-danger" onClick={handleDeleteBook}>Cancel reservation</button>
+                        <button type="button" className="btn btn-danger" onClick={handleReturnBook}>Return book</button>
                     </div>
                 </div>
             </div>
@@ -65,4 +61,4 @@ const CancelReservationModal = ({ modalId, reservationId, onReservationCanceled 
     );
 }
 
-export default CancelReservationModal;
+export default ReturnBookModal;

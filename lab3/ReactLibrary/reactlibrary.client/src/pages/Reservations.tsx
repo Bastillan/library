@@ -98,7 +98,7 @@ function Reservations() {
                             <td>
                                 {user?.role == "Librarian" && (
                                     <>
-                                        <button className="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#CancelReservationModal" onClick={() => setSelectedReservationId(reservation.id)}>Cancel reservation </button>
+                                        <button className="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#CancelReservationModal" onClick={() => setSelectedReservationId(reservation.id)}>Cancel reservation</button>
                                         <button className="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#MakeCheckoutModal" onClick={() => setSelectedReservationId(reservation.id)}>Make checkout</button>
                                     </>
                                 )}

@@ -103,7 +103,8 @@ namespace ReactLibrary.Server.Controllers
 
         // POST: api/Checkouts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpGet]
+        [Route("checkout/{id}")]
         [Authorize(Roles = "Librarian")]
         public async Task<ActionResult<Checkout>> MakeCheckout(int id)
         {
@@ -156,7 +157,7 @@ namespace ReactLibrary.Server.Controllers
         // DELETE: api/Checkouts/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "Librarian")]
-        public async Task<IActionResult> DeleteCheckout(int id)
+        public async Task<IActionResult> Return(int id)
         {
             var checkout = await _context.Checkout.FindAsync(id);
             if (checkout == null)

@@ -12,7 +12,7 @@ const MakeCheckoutModal = ({ modalId, reservationId, onCheckoutMade }: MakeCheck
     const [contentDanger, setContentDanger] = useState<string | null>(null);
 
     const handleMakeCheckout = async () => {
-        await api.post(`/Checkouts/${reservationId}`)
+        await api.get(`/Checkouts/checkout/${reservationId}`)
             .then(() => {
                 onCheckoutMade();
                 setMessage('Book was successfully checked out');

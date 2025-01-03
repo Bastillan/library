@@ -113,6 +113,9 @@ namespace ReactLibrary.Server.Controllers
                 return NotFound();
             }
 
+
+            _context.Entry(book).Property("RowVersion").OriginalValue = bookDTO.RowVersion;
+
             book.Title = bookDTO.Title;
             book.Author = bookDTO.Author;
             book.Genre = bookDTO.Genre;
@@ -122,6 +125,7 @@ namespace ReactLibrary.Server.Controllers
 
             try
             {
+                _context.Update(book);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)

@@ -2,6 +2,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 import { AuthContext, User } from './AuthContext';
+import api from './api';
 
 interface Props {
     children: ReactNode;
@@ -12,35 +13,58 @@ export const AuthProvider = ({ children }: Props) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        const refreshToken = localStorage.getItem('refreshToken');
+
         if (token) {
             try {
                 const decoded: any = jwtDecode(token);
-                if (decoded.exp * 1000 > Date.now()) {
-                    setUser({
-                        id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'], // User ID
-                        username: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'], // Username
-                        role: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'], // Role
-                        exp: decoded.exp, // Expiration time
-                    });
+                const isExpired = decoded.exp * 1000 > Date.now();
+                if (isExpired && refreshToken) {
+                    refreshAccessToken(token, refreshToken);
+                } else if (!isExpired) {
+                    setUserFromToken(decoded);
                 } else {
-                    localStorage.removeItem('token');
+                    logout();
                 }
             } catch {
-                localStorage.removeItem('token');
+                logout();
             }
         }
     }, []);
 
-    const login = (token: string, refreshToken: string) => {
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken)
-        const decoded: any = jwtDecode(token);
+    const setUserFromToken = (decoded: any) => {
         setUser({
             id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'], // User ID
             username: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'], // Username
             role: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'], // Role
             exp: decoded.exp, // Expiration time
         });
+    };
+
+    const refreshAccessToken = async (accessToken: string, refreshToken: string) => {
+        try {
+            const response = await api.post('/Users/refresh-token', {
+                accessToken,
+                refreshToken,
+            });
+
+            const { authToken, refreshToken: newRefreshToken } = response.data;
+
+            localStorage.setItem('token', authToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
+
+            const decoded: any = jwtDecode(authToken);
+            setUserFromToken(decoded);
+        } catch (error) {
+            logout();
+        }
+    }
+
+    const login = (token: string, refreshToken: string) => {
+        localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', refreshToken)
+        const decoded: any = jwtDecode(token);
+        setUserFromToken(decoded);
     };
 
     const logout = () => {

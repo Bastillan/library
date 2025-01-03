@@ -4,6 +4,7 @@ import api from "../services/api";
 import { useAuth } from '../services/useAuth';
 import AddBookModal from '../modals/AddBookModal';
 import EditBookModal from '../modals/EditBookModal';
+import DeleteBookModal from '../modals/DeleteBookModal';
 
 interface Book {
     id: number;
@@ -141,7 +142,7 @@ function Books() {
                                 {user?.role == "Librarian" && (
                                     <>
                                         <button className="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#EditModal" onClick={() => setSelectedBookId(book.id)}>Edit</button>
-                                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteBook(book.id)}>Delete</button>
+                                        <button className="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#DeleteModal" onClick={() => setSelectedBookId(book.id)}>Delete</button>
                                     </>
                                 )}
                             </td>
@@ -151,6 +152,7 @@ function Books() {
             </table>
             <AddBookModal modalId="AddModal" onBookAdded={fetchData} />
             <EditBookModal modalId="EditModal" bookId={selectedBookId} onBookEdited={fetchData} />
+            <DeleteBookModal modalId="DeleteModal" bookId={selectedBookId} onBookDeleted={fetchData} />
         </>
     );
 }

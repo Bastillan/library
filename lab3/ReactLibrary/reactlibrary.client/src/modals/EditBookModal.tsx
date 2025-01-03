@@ -71,10 +71,10 @@ const EditBookModal = ({ modalId, bookId, onBookEdited }: EditBookModalProps) =>
         } catch (error: any) {
             if (error.response) {
                 if (error.response.status === 404) {
-                    setError('Book you wanted to delete was not found.');
+                    setError('Book you wanted to edit was not found.');
                 }
                 if (error.response.status === 409) {
-                    setError('Book you wanted to delete was just modified by another user. Try again.');
+                    setError('Book you wanted to edit was just modified by another user. Try again.');
                 }
                 if (error.response.status === 400) {
                     setError("Invalid input");

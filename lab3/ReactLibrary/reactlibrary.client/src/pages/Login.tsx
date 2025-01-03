@@ -41,7 +41,8 @@ function Login() {
 
             if (response.status === 200) {
                 const token = response.data.authToken;
-                login(token);
+                const refreshToken = response.data.refreshToken;
+                login(token, refreshToken);
                 navigate(-1);
                 //window.location.href = '/account';
             }

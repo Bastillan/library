@@ -31,8 +31,9 @@ export const AuthProvider = ({ children }: Props) => {
         }
     }, []);
 
-    const login = (token: string) => {
+    const login = (token: string, refreshToken: string) => {
         localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', refreshToken)
         const decoded: any = jwtDecode(token);
         setUser({
             id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'], // User ID
@@ -44,6 +45,7 @@ export const AuthProvider = ({ children }: Props) => {
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         setUser(null);
     }
 

@@ -22,10 +22,32 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            window.location.href = '/account/login';
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            try {
+                const refreshToken = localStorage.getItem('refreshToken');
+                const response = await axios.post('/api/Users/refresh-token', {
+                    accessToken: localStorage.getItem('token'),
+                    refreshToken: refreshToken,
+                });
+
+                const { authToken, refreshToken: newRefreshToken } = response.data;
+
+                localStorage.setItem('token', authToken);
+                localStorage.setItem('refreshToken', newRefreshToken);
+
+                originalRequest.headers.Authorization = `Bearer ${authToken}`;
+                return api(originalRequest);
+            } catch (error) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/account/login';
+                return Promise.reject(error);
+            }
         }
         return Promise.reject(error);
     }

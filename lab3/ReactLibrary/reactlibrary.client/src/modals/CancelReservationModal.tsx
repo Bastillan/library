@@ -1,50 +1,54 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 
-interface EditBookModalProps {
+interface CancelReservationModalProps {
     modalId: string;
-    bookId: number | null;
-    onBookDeleted: () => void;
+    reservationId: number | null;
+    onReservationCanceled: () => void;
 }
 
-const DeleteBookModal = ({ modalId, bookId, onBookDeleted }: EditBookModalProps) => {
+const CancelReservationModal = ({ modalId, reservationId, onReservationCanceled }: CancelReservationModalProps) => {
     const [message, setMessage] = useState<string | null>(null);
     const [contentDanger, setContentDanger] = useState<string | null>(null);
 
     const handleDeleteBook = async () => {
-        await api.delete(`/Books/${bookId}`)
+        await api.delete(`/Reservations/${reservationId}`)
             .then(() => {
-                onBookDeleted();
-                setMessage('Book was successfully deleted');
+                onReservationCanceled();
+                setMessage('Reservation was successfully canceled');
                 setContentDanger(null);
             })
             .catch(error => {
                 if (error.response.status === 404) {
-                    setContentDanger('Book you wanted to delete was not found');
+                    setContentDanger('Reservation you wanted to cancel was not found');
                     setMessage(null);
                 }
                 if (error.response.status === 409) {
-                    setContentDanger('Book you wanted to delete was just modified by another user. Try again');
+                    setContentDanger('Book you wanted to cancel reservation for was just modified by another user. Try again');
+                    setMessage(null);
+                }
+                if (error.response.status === 400) {
+                    setContentDanger('Can not cancel this reservation');
                     setMessage(null);
                 }
             })
     }
 
     useEffect(() => {
-        if (bookId) {
+        if (reservationId) {
             setMessage(null);
-            setContentDanger("Are you sure you want to delete this book ?");
+            setContentDanger("Are you sure you want to cancel this reservation ?");
         } else {
-            setContentDanger("No book id");
+            setContentDanger("No reservation id.");
         }
-    }, [bookId]);
+    }, [reservationId]);
 
     return (
         <div className="modal fade" id={`${modalId}`} aria-hidden="true" aria-labelledby={`modalTitle${modalId}`} tabIndex={-1}>
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title" id={`modalTitle${modalId}`}>Delete book</h5>
+                        <h5 className="modal-title" id={`modalTitle${modalId}`}>Cancel reservation</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
@@ -53,7 +57,7 @@ const DeleteBookModal = ({ modalId, bookId, onBookDeleted }: EditBookModalProps)
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" className="btn btn-danger" onClick={handleDeleteBook}>Delete</button>
+                        <button type="button" className="btn btn-danger" onClick={handleDeleteBook}>Cancel reservation</button>
                     </div>
                 </div>
             </div>
@@ -61,4 +65,4 @@ const DeleteBookModal = ({ modalId, bookId, onBookDeleted }: EditBookModalProps)
     );
 }
 
-export default DeleteBookModal;
+export default CancelReservationModal;

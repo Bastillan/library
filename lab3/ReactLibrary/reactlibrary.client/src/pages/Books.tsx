@@ -25,7 +25,6 @@ function Books() {
     const [author, setAuthor] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [message, setMessage] = useState<string | null>(null);
     const { user } = useAuth();
     const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
 
@@ -44,8 +43,23 @@ function Books() {
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         fetchData();
-        setMessage(null);
     }
+
+    const handleMakeReservation = async (bookId: number) => {
+        await api.get(`/Reservations/reserve/${bookId}`)
+            .then(() => {
+                fetchData();
+                setError(null);
+            })
+            .catch(error => {
+                if (error.response.status === 409) {
+                    setError('Book you wanted to reserve was just modified by another user. Try again');
+                }
+                if (error.response.status === 400) {
+                    setError('Can not reserve this book');
+                }
+            })
+    } 
 
     const fetchData = () => {
         fetchGenres();
@@ -89,7 +103,6 @@ function Books() {
                 </>
             )}
             {error && <div className="alert alert-danger">{error}</div>}
-            {message && <div className="alert alert-success">{message}</div>}
             <form className="form-inline" onSubmit={handleSubmit}>
                 <label className="me-2">Genre: <select onChange={handleChangeGenre}>
                     <option value="">All</option>
@@ -127,6 +140,11 @@ function Books() {
                                     <>
                                         <button className="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#EditModal" onClick={() => setSelectedBookId(book.id)}>Edit</button>
                                         <button className="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#DeleteModal" onClick={() => setSelectedBookId(book.id)}>Delete</button>
+                                    </>
+                                )}
+                                {user?.role == "Reader" && book.status==="Available" && (
+                                    <>
+                                        <button className="btn btn-success btn-sm" onClick={() => handleMakeReservation(book.id)}>Reserve</button>
                                     </>
                                 )}
                             </td>

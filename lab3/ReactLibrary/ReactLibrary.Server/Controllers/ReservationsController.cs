@@ -108,7 +108,8 @@ namespace ReactLibrary.Server.Controllers
 
         // POST: api/Reservations
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpGet]
+        [Route("reserve/{id}")]
         [Authorize(Roles = "Reader")]
         public async Task<ActionResult<Reservation>> MakeReservation(int id)
         {

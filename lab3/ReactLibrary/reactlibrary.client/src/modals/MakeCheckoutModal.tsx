@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 
-interface EditBookModalProps {
+interface MakeCheckoutModalProps {
     modalId: string;
-    bookId: number | null;
-    onBookDeleted: () => void;
+    reservationId: number | null;
+    onCheckoutMade: () => void;
 }
 
-const DeleteBookModal = ({ modalId, bookId, onBookDeleted }: EditBookModalProps) => {
+const MakeCheckoutModal = ({ modalId, reservationId, onCheckoutMade }: MakeCheckoutModalProps) => {
     const [message, setMessage] = useState<string | null>(null);
     const [contentDanger, setContentDanger] = useState<string | null>(null);
 
-    const handleDeleteBook = async () => {
-        await api.delete(`/Books/${bookId}`)
+    const handleMakeCheckout = async () => {
+        await api.post(`/Checkouts/${reservationId}`)
             .then(() => {
-                onBookDeleted();
-                setMessage('Book was successfully deleted');
+                onCheckoutMade();
+                setMessage('Book was successfully checked out');
                 setContentDanger(null);
             })
             .catch(error => {
-                if (error.response.status === 404) {
-                    setContentDanger('Book you wanted to delete was not found');
+                if (error.response.status === 400) {
+                    setContentDanger('Can not check out this book');
                     setMessage(null);
                 }
                 if (error.response.status === 409) {
@@ -31,20 +31,20 @@ const DeleteBookModal = ({ modalId, bookId, onBookDeleted }: EditBookModalProps)
     }
 
     useEffect(() => {
-        if (bookId) {
+        if (reservationId) {
             setMessage(null);
-            setContentDanger("Are you sure you want to delete this book ?");
+            setContentDanger(`Are you sure you want to checkout this book?`);
         } else {
-            setContentDanger("No book id");
+            setContentDanger("No reservation id");
         }
-    }, [bookId]);
+    }, [reservationId]);
 
     return (
         <div className="modal fade" id={`${modalId}`} aria-hidden="true" aria-labelledby={`modalTitle${modalId}`} tabIndex={-1}>
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title" id={`modalTitle${modalId}`}>Delete book</h5>
+                        <h5 className="modal-title" id={`modalTitle${modalId}`}>Checkout book</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
@@ -53,7 +53,7 @@ const DeleteBookModal = ({ modalId, bookId, onBookDeleted }: EditBookModalProps)
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" className="btn btn-danger" onClick={handleDeleteBook}>Delete</button>
+                        <button type="button" className="btn btn-danger" onClick={handleMakeCheckout}>Check out</button>
                     </div>
                 </div>
             </div>
@@ -61,4 +61,4 @@ const DeleteBookModal = ({ modalId, bookId, onBookDeleted }: EditBookModalProps)
     );
 }
 
-export default DeleteBookModal;
+export default MakeCheckoutModal;

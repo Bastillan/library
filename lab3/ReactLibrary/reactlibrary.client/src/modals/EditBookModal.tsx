@@ -62,7 +62,7 @@ const EditBookModal = ({ modalId, bookId, onBookEdited }: EditBookModalProps) =>
         setMessage(null);
 
         try {
-            const response = await api.put(`Books/${bookId}`, putBookDTO);
+            const response = await api.put(`/Books/${bookId}`, putBookDTO);
 
             if (response.status === 204) {
                 onBookEdited();

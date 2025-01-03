@@ -47,22 +47,6 @@ function Books() {
         setMessage(null);
     }
 
-    const handleDeleteBook = async (bookId: number) => {
-        await api.delete(`Books/${bookId}`)
-            .then(() => {
-                fetchData();
-                setMessage('Book was successfully deleted');
-            })
-            .catch(error => {
-                if (error.response.status === 404) {
-                    setMessage('Book you wanted to delete was not found');
-                }
-                if (error.response.status === 409) {
-                    setMessage('Book you wanted to delete was just modified by another user. Try again');
-                }
-            })
-    }
-
     const fetchData = () => {
         fetchGenres();
         fetchBooks();

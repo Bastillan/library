@@ -18,9 +18,9 @@ export const AuthProvider = ({ children }: Props) => {
         if (token) {
             try {
                 const decoded: any = jwtDecode(token);
-                const isExpired = decoded.exp * 1000 > Date.now();
+                const isExpired = new Date(decoded.exp) > new Date();
                 if (isExpired && refreshToken) {
-                    refreshAccessToken(token, refreshToken);
+                    refreshAccessToken();
                 } else if (!isExpired) {
                     setUserFromToken(decoded);
                 } else {
@@ -41,17 +41,17 @@ export const AuthProvider = ({ children }: Props) => {
         });
     };
 
-    const refreshAccessToken = async (accessToken: string, refreshToken: string) => {
+    const refreshAccessToken = async () => {
         try {
             const response = await api.post('/Users/refresh-token', {
-                accessToken,
-                refreshToken,
+                accessToken: localStorage.getItem('token'),
+                refreshToken: localStorage.getItem('refreshToken'),
             });
 
-            const { authToken, refreshToken: newRefreshToken } = response.data;
+            const { authToken, refreshToken } = response.data;
 
             localStorage.setItem('token', authToken);
-            localStorage.setItem('refreshToken', newRefreshToken);
+            localStorage.setItem('refreshToken', refreshToken);
 
             const decoded: any = jwtDecode(authToken);
             setUserFromToken(decoded);

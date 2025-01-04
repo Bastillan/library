@@ -88,7 +88,7 @@ namespace ReactLibrary.Server.Controllers
             var accessToken = await GenerateToken(userInDb);
             var refreshToken = GenerateRefreshToken();
             userInDb.RefreshToken = refreshToken;
-            userInDb.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            userInDb.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("JWT:RefreshExpirationInDays"));
             await _userManager.UpdateAsync(userInDb);
             await _context.SaveChangesAsync();
 
@@ -133,11 +133,17 @@ namespace ReactLibrary.Server.Controllers
                 await _userManager.AddToRoleAsync(user, "Reader");
                 await _context.SaveChangesAsync();
 
+                var refreshToken = GenerateRefreshToken();
+                userInDb.RefreshToken = refreshToken;
+                userInDb.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("JWT:RefreshExpirationInDays"));
+                await _userManager.UpdateAsync(userInDb);
+                await _context.SaveChangesAsync();
+
                 return CreatedAtAction(nameof(GetUser), new { userInDb.Id }, new AuthResponse
                 {
                     UserId = userInDb.Id,
                     AuthToken = accessToken,
-                    RefreshToken = string.Empty
+                    RefreshToken = refreshToken
                 });
             }
 
@@ -154,8 +160,6 @@ namespace ReactLibrary.Server.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteUser(String id)
         {
-            //if (User.IsInRole("Librarian"))
-            //return Ok(User.Identity.IsAuthenticated);
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)

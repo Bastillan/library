@@ -131,13 +131,11 @@ namespace ReactLibrary.Server.Controllers
                 var accessToken = await GenerateToken(userInDb);
 
                 await _userManager.AddToRoleAsync(user, "Reader");
-                await _context.SaveChangesAsync();
 
                 var refreshToken = GenerateRefreshToken();
                 userInDb.RefreshToken = refreshToken;
                 userInDb.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("JWT:RefreshExpirationInDays"));
                 await _userManager.UpdateAsync(userInDb);
-                await _context.SaveChangesAsync();
 
                 return CreatedAtAction(nameof(GetUser), new { userInDb.Id }, new AuthResponse
                 {

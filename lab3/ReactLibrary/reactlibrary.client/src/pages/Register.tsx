@@ -57,7 +57,8 @@ function Register() {
 
             if (response.status === 201) {
                 const token = response.data.authToken;
-                login(token);
+                const refreshToken = response.data.refreshToken;
+                login(token, refreshToken);
                 navigate('/account');
             }
         } catch (error: any) {

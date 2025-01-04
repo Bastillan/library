@@ -124,10 +124,9 @@ namespace ReactLibrary.Server.Controllers
                     return Unauthorized();
                 }
 
-                var accessToken = await _tokenService.GenerateTokenAsync(userInDb);
-
                 await _userManager.AddToRoleAsync(user, "Reader");
 
+                var accessToken = await _tokenService.GenerateTokenAsync(userInDb);
                 var refreshToken = _tokenService.GenerateRefreshToken();
                 userInDb.RefreshToken = refreshToken;
                 userInDb.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("JWT:RefreshExpirationInDays"));

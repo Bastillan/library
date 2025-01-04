@@ -1,18 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using Azure.Core;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+
 using ReactLibrary.Server.Data;
 using ReactLibrary.Server.Models;
 using ReactLibrary.Server.Models.Api;
+using ReactLibrary.Server.Services;
 
 namespace ReactLibrary.Server.Controllers
 {
@@ -23,15 +16,18 @@ namespace ReactLibrary.Server.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly TokenService _tokenService;
 
         public UsersController(
             UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            TokenService tokenService)
         {
             _userManager = userManager;
             _context = context;
             _configuration = configuration;
+            _tokenService = tokenService;
         }
 
         [HttpGet("{id}")]
@@ -85,8 +81,8 @@ namespace ReactLibrary.Server.Controllers
                 return Unauthorized();
             }
 
-            var accessToken = await GenerateToken(userInDb);
-            var refreshToken = GenerateRefreshToken();
+            var accessToken = await _tokenService.GenerateTokenAsync(userInDb);
+            var refreshToken = _tokenService.GenerateRefreshToken();
             userInDb.RefreshToken = refreshToken;
             userInDb.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("JWT:RefreshExpirationInDays"));
             await _userManager.UpdateAsync(userInDb);
@@ -128,11 +124,11 @@ namespace ReactLibrary.Server.Controllers
                     return Unauthorized();
                 }
 
-                var accessToken = await GenerateToken(userInDb);
+                var accessToken = await _tokenService.GenerateTokenAsync(userInDb);
 
                 await _userManager.AddToRoleAsync(user, "Reader");
 
-                var refreshToken = GenerateRefreshToken();
+                var refreshToken = _tokenService.GenerateRefreshToken();
                 userInDb.RefreshToken = refreshToken;
                 userInDb.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("JWT:RefreshExpirationInDays"));
                 await _userManager.UpdateAsync(userInDb);
@@ -199,7 +195,7 @@ namespace ReactLibrary.Server.Controllers
                 return BadRequest("Invalid client request");
             }
 
-            var principal = GetPrincipalFromExpiredToken(tokenRequest.AccessToken);
+            var principal = _tokenService.GetPrincipalFromExpiredToken(tokenRequest.AccessToken);
             if (principal == null)
             {
                 return BadRequest("Invalid access token or refresh token");
@@ -213,8 +209,8 @@ namespace ReactLibrary.Server.Controllers
                 return BadRequest("Invalid access token or refresh token");
             }
 
-            var newAccessToken = await GenerateToken(user);
-            var newRefreshToken = GenerateRefreshToken();
+            var newAccessToken = await _tokenService.GenerateTokenAsync(user);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
 
             user.RefreshToken = newRefreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("JWT:RefreshExpirationInDays"));
@@ -228,86 +224,5 @@ namespace ReactLibrary.Server.Controllers
                 UserId = user.Id
             });
         }
-
-        private async Task<string> GenerateToken(ApplicationUser user)
-        {
-            var handler = new JwtSecurityTokenHandler();
-
-            var issuer = _configuration.GetSection("JWT")["ValidIssuer"];
-            var audience = _configuration.GetSection("JWT")["ValidAudience"];
-            var claims = await CreateClaims(user);
-            var expiration = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("JWT:ExpirationInMinutes"));
-            var credentials = CreateSigningCredentials();
-
-            var token = new JwtSecurityToken(
-                issuer,
-                audience,
-                claims,
-                expires: expiration,
-                signingCredentials: credentials
-                );
-
-            return handler.WriteToken(token);
-        }
-
-        private async Task<List<Claim>> CreateClaims(ApplicationUser user)
-        {
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName!),
-
-            };
-
-            foreach (var role in userRoles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            return claims;
-        }
-
-        private SigningCredentials CreateSigningCredentials()
-        {
-            var symmetricSecurityKey = _configuration.GetSection("JWT")["Secret"];
-
-            return new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(symmetricSecurityKey)), SecurityAlgorithms.HmacSha256);
-        }
-
-        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
-        {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!)),
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidIssuer = _configuration["JWT:ValidIssuer"],
-                ValidAudience = _configuration["JWT:ValidAudience"],
-                ValidateLifetime = false
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-
-            if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            {
-                throw new SecurityTokenException("Invalid token");
-            }
-
-            return principal;
-        }
-
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
-        }
-
     }
 }

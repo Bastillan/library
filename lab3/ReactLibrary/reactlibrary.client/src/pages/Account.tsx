@@ -55,7 +55,7 @@ function Account() {
     return (
         <div className="col-md-6">
             <h2>Account details</h2>
-            {error && <div className="text-danger">{error}</div> }
+            {error && <div className="alert alert-danger">{error}</div> }
             {userData && (
                 <>
                     <div className="form-floating mb-3">

@@ -1,6 +1,6 @@
 # library
 ## Description
-A simple library handling system written in two configurations:
+Simple library handling system written in two configurations:
 - `ASP.NET MVC`
 - `React TS` + `ASP.NET Web API`
 

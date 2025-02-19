@@ -38,3 +38,10 @@ It was written in the fifth semester (2024Z) as a project for the course *RAD to
 - [ ] - fixing the link between users and their book reservations and checkouts (*UserId* instead of *UserName* as Foreign Key) differentiating different users with the same *UserName* (situation only possible when first user deletes his account)
 - [ ] - implementing pagination of displayed data
 - [ ] - ensuring proper UI handling of concurrency errors in the second configuration
+
+## Project properies
+When running the project in Visual Studio, make sure that the project properties are set as shown in the images below.
+
+![Project properties](./imgs/properties1.png)
+
+![Project properties](./imgs/properties2.png)

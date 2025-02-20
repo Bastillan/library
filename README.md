@@ -10,25 +10,25 @@ The second configuration implements authentication using `JWT tokens`.
 
 It was written in the fifth semester (2024Z) as a project for the course *RAD tools (NTR)* at the Warsaw University of Technology.
 
-### `ASP.NET MVC`
+## `ASP.NET MVC`
 
-#### Librarian
+### Librarian
 
 ![alt text](./imgs/mvc_admin.png)
 
-#### User
+### User
 
 ![alt text](./imgs/mvc_books.png)
 
 ![alt text](./imgs/mvc_reserve.png)
 
-### `React TS` + `ASP.NET Web API`
+## `React TS` + `ASP.NET Web API`
 
-#### Librarian
+### Librarian
 
 ![alt text](./imgs/react_return_book.png)
 
-#### User
+### User
 
 ![alt text](./imgs/react_books.png)
 
